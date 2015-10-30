@@ -1,13 +1,5 @@
 from util import *
 from util import raiseNotDefined
-import time, os
-import traceback
-
-try:
-  import boinc
-  _BOINC_ENABLED = True
-except:
-  _BOINC_ENABLED = False
 
 #######################
 # Parts worth reading #
@@ -140,9 +132,6 @@ class Game:
       if agentIndex == numAgents + 1: self.numMoves += 1
       # Next agent
       agentIndex = ( agentIndex + 1 ) % numAgents
-
-      if _BOINC_ENABLED:
-        boinc.set_fraction_done(self.getProgress())
 
     # inform a learning agent of the game result
     for agent in self.agents:
