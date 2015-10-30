@@ -22,7 +22,7 @@ class Agent:
     """
     raiseNotDefined()
 
-class AgentState:
+class PlayerState:
   """
   AgentStates hold the state of an agent (configuration, speed, scared, etc).
   """
@@ -46,43 +46,6 @@ class Actions:
   def getPossibleActions(config, walls):
     return None
   getPossibleActions = staticmethod(getPossibleActions)
-
-class GameStateData:
-  def __init__( self, prevState = None ):
-
-  def deepCopy( self ):
-
-  def copyAgentStates( self, agentStates ):
-    copiedStates = []
-    for agentState in agentStates:
-      copiedStates.append( agentState.copy() )
-    return copiedStates
-
-  def __eq__( self, other ):
-    """
-    Allows two states to be compared.
-    """
-    if other == None: return False
-    if not self.agentStates == other.agentStates: return False
-    return True
-
-  def __hash__( self ):
-    """
-    Allows states to be keys of dictionaries.
-    """
-    for i, state in enumerate( self.agentStates ):
-      try:
-        int(hash(state))
-      except TypeError, e:
-        print e
-        #hash(state)
-    # return int((hash(tuple(self.agentStates)) + 13*hash(self.food) + 113* hash(tuple(self.capsules)) + 7 * hash(self.score)) % 1048575 )
-    return 0
-
-  def __str__( self ):
-    return ''
-
-  def initialize( self, numPlayers):
 
 class Game:
   """

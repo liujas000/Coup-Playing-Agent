@@ -5,16 +5,9 @@ from game import Actions
 from util import nearestPoint
 from util import manhattanDistance
 import util, layout
-import sys, types, time, random, os
-
-###################################################
-# YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
-###################################################
+import sys, time, random, os
 
 class GameState:
-  ####################################################
-  # Accessor methods: use these to access state data #
-  ####################################################
 
   def getLegalActions( self, agentIndex=0 ):
 
@@ -39,45 +32,27 @@ class GameState:
     """
     Generates a new state by copying information from its predecessor.
     """
-    if prevState != None: # Initial state
-      self.data = GameStateData(prevState.data)
-    else:
-      self.data = GameStateData()
 
   def deepCopy( self ):
-    state = GameState( self )
-    state.data = self.data.deepCopy()
-    return state
 
   def __eq__( self, other ):
     """
     Allows two states to be compared.
     """
-    return self.data == other.data
 
   def __hash__( self ):
     """
     Allows states to be keys of dictionaries.
     """
-    return hash( self.data )
 
   def __str__( self ):
-
-    return str(self.data)
 
   def initialize( self, numPlayers=5 ):
     """
     Creates an initial game state from a layout array (see layout.py).
     """
-    self.data.initialize(layout, numPlayers)
 
-############################################################################
-#                     THE HIDDEN SECRETS OF PACMAN                         #
-#                                                                          #
-# You shouldn't need to look through the code in this section of the file. #
-############################################################################
-
-class ClassicGameRules:
+class GameRules:
   def __init__(self, timeout=30):
     self.timeout = timeout
 
