@@ -11,7 +11,7 @@ class GameState:
 
   def getLegalActions( self, agentIndex=0 ):
 
-  def generateSuccessor( self, agentIndex, action):
+  def generateSuccessor( self, action):
 
   def getPlayerState( self ):
 

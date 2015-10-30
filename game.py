@@ -67,32 +67,65 @@ class Game:
       agent = self.agents[i]
       agent.registerInitialState(self.state.deepCopy())
 
-    agentIndex = self.startingIndex
     numAgents = len( self.agents )
 
     while not self.gameOver:
       # Fetch the next agent
-      agent = self.agents[agentIndex]
-      move_time = 0
-      skip_action = False
+      agent = self.agents[self.state.agentTurn]
       # Generate an observation of the state
-      observation = agent.observationFunction(self.state.deepCopy())
+
+      # observation = agent.observationFunction(self.state.deepCopy())
+      # observation = self.state.deepCopy()
+
+      def getBlock():
+        for agent in self.agents:
+          block = agent.getAction(self.state)
+          if block:
+            return block, agent
+        return None, None
+
+      def getChallenge():
+        for agent in self.agents:
+          challenge = agent.getAction(self.state)
+          if challenge:
+            return challenge, agent
+        return None, None
+
+      def resolveChallenge(challengedPlayer, challengingPlayer, action):
+        punished = challengingPlayer if action.isLegal() else challengedPlayer
+        if punished == challengingPlayer:
+          self.state = action.resolve(self.state)
+        else:
+          self.state = action.cancel(self.state)
+        punishAction = Actions.punish(punished)
+        self.state = punishAction.resolve(self.state) #punish is a general Actions method 
+
 
       # Solicit an action
-      action = None
-      action = agent.getAction(observation)
-
+      action = agent.getAction(self.state.deepCopy())
       # Execute the action
-      self.moveHistory.append( (agentIndex, action) )
-      self.state = self.state.generateSuccessor( agentIndex, action )
+      # self.state = self.state.generateSuccessor( action )
+      self.state = action.choose(self.state)
+      block, b_player = getBlock()
+      if block:
+        challenge, c_player = getChallenge()
+        if challenge:
+          resolveChallenge(b_player, c_player, block)
+        else:
+          self.state = action.cancel(self.state) # resolve block?
+      else:
+        challenge, c_player = getChallenge()
+        if challenge:
+          resolveChallenge(agent, c_player, action) # player num ??
+        else:
+          self.state = action.resolve(self.state)
 
-      # Change the display
-      self.display.update( self.state.data )
+
+      self.state = action.resolve(self.state)
 
       # Allow for game specific conditions (winning, losing, etc.)
       self.rules.process(self.state, self)
-      # Track progress
-      if agentIndex == numAgents + 1: self.numMoves += 1
+
       # Next agent
       agentIndex = ( agentIndex + 1 ) % numAgents
 
