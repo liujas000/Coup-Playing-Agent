@@ -24,10 +24,16 @@ class Agent:
 
 class PlayerState:
   """
-  AgentStates hold the state of an agent (configuration, speed, scared, etc).
+  PlayerStates hold the state of a player (index, characters etc).
   """
 
-  def __init__( self ):
+  def __init__( self, index, characters ):
+    
+    self.index = index
+    self.characters = characters
+    self.coins = 2
+    self.inactiveCharacters = []
+    self.revealedCharacters = []
 
   def __str__( self ):
 
@@ -36,10 +42,6 @@ class PlayerState:
   def __hash__(self):
 
   def copy( self ):
-
-####################################
-# Parts you shouldn't have to read #
-####################################
 
 class Actions:
 
@@ -110,13 +112,13 @@ class Game:
       if block:
         challenge, c_player = getChallenge()
         if challenge:
-          resolveChallenge(b_player, c_player, block)
+          challenge.resolve(b_player, c_player, block)
         else:
           self.state = action.cancel(self.state) # resolve block?
       else:
         challenge, c_player = getChallenge()
         if challenge:
-          resolveChallenge(agent, c_player, action) # player num ??
+          challenge.resolve(agent, c_player, action)
         else:
           self.state = action.resolve(self.state)
 

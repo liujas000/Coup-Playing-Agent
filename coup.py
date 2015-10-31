@@ -7,50 +7,6 @@ from util import manhattanDistance
 import util, layout
 import sys, time, random, os
 
-class GameState:
-
-  def getLegalActions( self, agentIndex=0 ):
-
-  def generateSuccessor( self, action):
-
-  def getPlayerState( self ):
-
-  def getNumAgents( self ):
-
-  def getScore( self ):
-
-  def isLose( self ):
-
-  def isWin( self ):
-
-  #############################################
-  #             Helper methods:               #
-  # You shouldn't need to call these directly #
-  #############################################
-
-  def __init__( self, prevState = None ):
-    """
-    Generates a new state by copying information from its predecessor.
-    """
-
-  def deepCopy( self ):
-
-  def __eq__( self, other ):
-    """
-    Allows two states to be compared.
-    """
-
-  def __hash__( self ):
-    """
-    Allows states to be keys of dictionaries.
-    """
-
-  def __str__( self ):
-
-  def initialize( self, numPlayers=5 ):
-    """
-    Creates an initial game state from a layout array (see layout.py).
-    """
 
 class GameRules:
   def __init__(self, timeout=30):
