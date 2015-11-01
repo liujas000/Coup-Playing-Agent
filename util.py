@@ -9,8 +9,21 @@ characterToAction = {
 }
 
 #actionToCharacter
+actionToCharacter = {
+	
+	'exchange': ['ambassador'],
+	'assassinate': ['assassin'],
+	'steal': ['captain'],
+	'tax': ['duke']
+}
 #blockToCharacter
 
+blockToCharacter = {
+	
+	'steal': ['ambassador', 'captain']
+	'assassinate': ['contessa']
+	'foreign aid': ['duke']
+}
 
 characterToBlock = {
 	
@@ -20,8 +33,8 @@ characterToBlock = {
 	'duke:' : 'foreignAid'
 }
 
-basicActions = ['income', 'foreignAid', 'coup']
+basicActions = ['income', 'foreign aid', 'coup']
 specialActions = ['steal', 'assassinate', 'exchange', 'tax']
-blocks = ['steal', 'assassinate', 'foreignAid']
+blocks = ['steal', 'assassinate', 'foreign aid']
 
 

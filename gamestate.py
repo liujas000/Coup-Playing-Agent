@@ -28,13 +28,25 @@ class GameState:
       self.numPlayers = 0
       self.playerTurn = 0
       self.currentAction = None
-      self.playerCounter = None
       self.playerChallenge = None
       self.playerBlock = None
+      self.playerTarget = None
+      self.punishedPlayer = None
       self.deck = []
       self.activePlayers = []
       self.inactiveCharacters = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
+
+      # has an action been chosen and by who
+      # has a block been chosen and by who
+      # has a challenge been chosen and by who
+  
+  def finishTurn(self):
+    self.currentAction = None
+    self.playerChallenge = None
+    slef.playerBlock = None
+    self.playerTarget = None
+    #punished player
 
 
   def deepCopy( self ):

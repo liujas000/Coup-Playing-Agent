@@ -81,14 +81,14 @@ class Game:
 
       def getBlock():
         for agent in self.agents:
-          block = agent.getAction(self.state)
+          block = agent.getAction(self.state.deepCopy())
           if block:
             return block, agent
         return None, None
 
       def getChallenge():
         for agent in self.agents:
-          challenge = agent.getAction(self.state)
+          challenge = agent.getAction(self.state.deepCopy())
           if challenge:
             return challenge, agent
         return None, None
@@ -122,8 +122,11 @@ class Game:
         else:
           self.state = action.resolve(self.state)
 
+      #scan gamestate, punish any players necessary, and reset some vars to None
+      if self.state.punishedPlayer is not None:
+        punishAction = self.agents[punishedPlayer].getAction(self.state.deepCopy())
 
-      self.state = action.resolve(self.state)
+      self.state.finishTurn()      
 
       # Allow for game specific conditions (winning, losing, etc.)
       self.rules.process(self.state, self)
