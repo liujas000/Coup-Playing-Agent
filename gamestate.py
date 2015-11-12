@@ -29,6 +29,7 @@ class GameState:
       self.playerTurn = prevState.playerTurn
       self.currentAction = prevState.currentAction
       self.playerExchange = prevState.playerExchange
+      self.playerChallenge = prevState.playerChallenge
       self.playerBlock = prevState.playerBlock
       self.playerTarget = prevState.playerTarget
       self.punishedPlayers = list(prevState.punishedPlayers)
@@ -50,7 +51,6 @@ class GameState:
   def __str__( self ):
     return """
       Players: %r
-      Active Players: %r
       Number Players: %r
       Player Turn: %r
       Current Action: %r
@@ -63,7 +63,7 @@ class GameState:
       Past Actions: %r
       Deck: %r
       Inactive Characters: %r
-    """ % (self.players, self.activePlayers, self.numPlayers, self.playerTurn, self.currentAction, \
+    """ % ([str(player) for player in self.players], self.numPlayers, self.playerTurn, self.currentAction, \
       self.nextActionType, self.playerBlock, self.playerChallenge, self.playerTarget, self.playerExchange, \
       self.punishedPlayers, self.pastActions, self.deck, self.inactiveCharacters)
 
@@ -71,6 +71,7 @@ class GameState:
     """
     Creates an initial game state given a number of players.
     """
+    self.numPlayers = numPlayers
     self.deck = ['ambassador', 'assassin', 'captain', 'contessa', 'duke'] * 3
     random.shuffle(self.deck)
     for i in range(numPlayers):
@@ -141,7 +142,7 @@ class PlayerState:
     self.revealedCharacters = []
 
   def __str__( self ):
-    return str(self.index)
+    return str(self.playerIndex) + ': ' + str(self.characters) + ' (%d coins)' % self.coins
 
   # def __eq__( self, other ):
 
