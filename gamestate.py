@@ -1,3 +1,5 @@
+import collections
+
 class GameState:
 
   def getLegalActions( self, playerIndex=0 ):
@@ -78,21 +80,36 @@ class GameState:
       self.activePlayers = []
       self.inactiveCharacters = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
-      self.nextActionType = 'action' # can be 'action', 'block', 'challenge', 'discard'
-
-      # has an action been chosen and by who
-      # has a block been chosen and by who
-      # has a challenge been chosen and by who
+      self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
+    else:
+      self.players = list(prevState.players)
+      self.numPlayers = prevState.numPlayers
+      self.playerTurn = prevState.playerTurn
+      self.currentAction = prevState.currentAction
+      self.playerExchange = prevState.playerExchange
+      self.playerBlock = prevState.playerBlock
+      self.playerTarget = prevState.playerTarget
+      self.punishedPlayers = list(prevState.punishedPlayers)
+      self.deck = list(prevState.deck)
+      self.activePlayers = list(prevState.activePlayers)
+      self.inactiveCharacters = collections.Counter(prevState.inactiveCharacters)
+      self.pastActions = list(prevState.pastActions)
+      self.nextActionType = prevState.nextActionType
+    
   
   def finishTurn(self):
     self.currentAction = None
     self.playerChallenge = None
     slef.playerBlock = None
     self.playerTarget = None
+    self.playerExchange = None
+    self.punishedPlayers = []
     #punished player
 
 
   def deepCopy( self ):
+    return GameState(self)
+
 
   def __eq__( self, other ):
     """
