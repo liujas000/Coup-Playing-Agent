@@ -33,11 +33,6 @@ class GameState:
   def isOver( self ):
     len(self.activePlayers) <= 1
 
-  #############################################
-  #             Helper methods:               #
-  # You shouldn't need to call these directly #
-  #############################################
-
   def __init__( self, prevState = None ):
     """
     Generates a new state by copying information from its predecessor.
@@ -67,8 +62,6 @@ class GameState:
     self.playerChallenge = None
     slef.playerBlock = None
     self.playerTarget = None
-    #punished player
-
 
   def deepCopy( self ):
 

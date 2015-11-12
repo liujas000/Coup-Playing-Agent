@@ -54,18 +54,24 @@ class Game:
   The Game manages the control flow, soliciting actions from agents.
   """
 
-  def __init__( self ):
+  def __init__(agents = []):
     self.gameOver = False
+    state = GameState()
+    state.numPlayers = len(agents)
+    self.state = state
+    self.agents = agents
+
+  def getBlockOrChallenge(self):
+    for agent in self.agents:
+      block = agent.getAction(self.state.deepCopy())
+      if block is not None:
+        return block, agent
+    return None, None
 
   def run( self ):
     """
     Main control loop for game play.
     """
-    self.display.initialize(self.state.data)
-    self.numMoves = 0
-
-    ###self.display.initialize(self.state.makeObservation(1).data)
-    # inform learning agents of the game start
     for i in range(len(self.agents)):
       agent = self.agents[i]
       agent.registerInitialState(self.state.deepCopy())
@@ -75,23 +81,6 @@ class Game:
     while not self.gameOver:
       # Fetch the next agent
       agent = self.agents[self.state.agentTurn]
-
-      def getBlockOrChallenge():
-        for agent in self.agents:
-          block = agent.getAction(self.state.deepCopy())
-          if block is not None:
-            return block, agent
-        return None, None
-
-      def resolveChallenge(challengedPlayer, challengingPlayer, action):
-        punished = challengingPlayer if action.isLegal() else challengedPlayer
-        if punished == challengingPlayer:
-          self.state = action.resolve(self.state)
-        else:
-          self.state = action.cancel(self.state)
-        punishAction = Actions.punish(punished)
-        self.state = punishAction.resolve(self.state) #punish is a general Actions method 
-
       # Solicit an action
       self.state.nextActionType = 'action'
       action = agent.getAction(self.state.deepCopy())
@@ -99,17 +88,17 @@ class Game:
       # self.state = self.state.generateSuccessor( action )
       self.state = action.choose(self.state)
       self.state.nextActionType = 'block'
-      block, b_player = getBlockOrChallenge()
+      block, b_player = self.getBlockOrChallenge()
       if block is not None:
         self.state = block.choose(self.state)
         self.state.nextActionType = 'challenge'
-        challenge, c_player = getBlockOrChallenge()
+        challenge, c_player = self.getBlockOrChallenge()
         if challenge is not None:
           challenge.resolve(b_player, c_player, block)
           # resolve initial action?
       else:
         self.state.nextActionType = 'challenge'
-        challenge, c_player = getBlockOrChallenge()
+        challenge, c_player = self.getBlockOrChallenge()
         if challenge is not None:
           challenge.resolve(agent, c_player, action)
         else:
@@ -137,7 +126,6 @@ class Game:
       if "final" in dir( agent ) :
         agent.final( self.state )
 
-    self.display.finish()
 
 
 

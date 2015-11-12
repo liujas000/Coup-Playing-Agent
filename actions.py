@@ -34,7 +34,6 @@ class Challenge(Action):
     gameState.punishedPlayer.append(self.punishedPlayer)
     return gameState
 
-
 class Tax(Action):
 
   def choose(self,gameState):
