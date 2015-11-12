@@ -1,5 +1,4 @@
 from util import *
-from util import raiseNotDefined
 
 #######################
 # Parts worth reading #
@@ -36,12 +35,14 @@ class PlayerState:
     self.revealedCharacters = []
 
   def __str__( self ):
+    return str(self.index)
 
-  def __eq__( self, other ):
+  # def __eq__( self, other ):
 
-  def __hash__(self):
+  # def __hash__(self):
 
-  def copy( self ):
+  # def copy( self ):
+
 
 class Actions:
 

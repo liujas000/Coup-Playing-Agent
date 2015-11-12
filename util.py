@@ -1,7 +1,6 @@
 characterList = ['ambassador', 'assassin', 'captain', 'contessa', 'duke']
 
 characterToAction = {
-	
 	'ambassador': 'exchange',
 	'assassin': 'assassinate',
 	'captain' : 'steal',
@@ -10,7 +9,6 @@ characterToAction = {
 
 #actionToCharacter
 actionToCharacter = {
-	
 	'exchange': ['ambassador'],
 	'assassinate': ['assassin'],
 	'steal': ['captain'],
@@ -19,14 +17,12 @@ actionToCharacter = {
 #blockToCharacter
 
 blockToCharacter = {
-	
-	'steal': ['ambassador', 'captain']
-	'assassinate': ['contessa']
+	'steal': ['ambassador', 'captain'],
+	'assassinate': ['contessa'],
 	'foreign aid': ['duke']
 }
 
 characterToBlock = {
-	
 	'ambassador' : 'steal',
 	'captain' : 'steal',
 	'contessa' : 'assassinate',
