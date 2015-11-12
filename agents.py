@@ -19,8 +19,9 @@ class KeyboardAgent(Agent):
 
   def getAction(self, state):
     actions = state.getLegalActions(self.index)
+    print '===========STATE BEGIN===========\n',state,'\n===========STATE END============='
     while True:
-      print 'Please enter an action from the following list:', actions, '\n'
+      print 'Please enter an action from the following list: [', actions, ']\n'
       action = raw_input()
       if action in actions:
         return action
