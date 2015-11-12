@@ -1,4 +1,5 @@
 from util import *
+from gamestate import GameState
 
 #######################
 # Parts worth reading #
@@ -55,7 +56,7 @@ class Game:
   The Game manages the control flow, soliciting actions from agents.
   """
 
-  def __init__(agents = []):
+  def __init__(self, agents = []):
     self.gameOver = False
     state = GameState()
     state.numPlayers = len(agents)
@@ -81,7 +82,7 @@ class Game:
 
     while not self.gameOver:
       # Fetch the next agent
-      agent = self.agents[self.state.agentTurn]
+      agent = self.agents[self.state.playerTurn]
       # Solicit an action
       self.state.nextActionType = 'action'
       action = agent.getAction(self.state.deepCopy())

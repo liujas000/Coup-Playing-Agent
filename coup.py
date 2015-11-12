@@ -39,6 +39,9 @@ class PlayerRules:
     # do something
   applyAction = staticmethod( applyAction )
 
+def default(str):
+  return str + ' [Default: %default]'
+  
 def readCommand( argv ):
   """
   Processes the command used to run pacman from the command line.

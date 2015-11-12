@@ -62,8 +62,7 @@ class GameState:
       Past Actions: %r
       Deck: %r
       Inactive Characters: %r
-    """
-    % (self.players, self.activePlayers, self.numPlayers, self.playerTurn, self.currentAction, \
+    """ % (self.players, self.activePlayers, self.numPlayers, self.playerTurn, self.currentAction, \
       self.nextActionType, self.playerBlock, self.playerChallenge, self.playerTarget, self.playerExchange, \
       self.punishedPlayers, self.pastActions, self.deck, self.inactiveCharacters)
 
