@@ -22,13 +22,13 @@ class Challenge(Action):
     if not actionIsBlock:
       characters = util.actionToCharacter[gameState.currentAction] #character is a list
       #want to see if playerTurn has that character
-      result = any([True for x in characters if x in gameState.players[gameState.playerTurn]] )
+      result = any([True for x in characters if x in gameState.players[gameState.playerTurn].characters] )
       self.punishedPlayer = self.playerChallenge if result else playerTurn 
       self.challengeSuccess = not result
     else:
       characters = util.blockToCharacter[gameState.currentAction] #character is a list
       #want to see if playerTurn has that character
-      result = any([True for x in characters if x in gameState.players[gameState.playerBlock]] )
+      result = any([True for x in characters if x in gameState.players[gameState.playerBlock].characters] )
       self.punishedPlayer = self.playerChallenge if result else playerBlock 
       self.challengeSuccess = not result
     return gameState
@@ -86,7 +86,8 @@ class Exchange(Action):
     gameState.playerExchange = gameState.playerTurn
     addCards = gameState.deck[0:2]
     gameState.deck = gameState.deck[2:]
-    gameState.punishedPlayers += [self.gameState.playerTurn, self.gameState.playerTurn]
+    gameState.players[gameState.playerTurn].characters += addCards
+    gameState.punishedPlayers += [gameState.playerTurn, gameState.playerTurn]
     return gameState
 
   def __str__(self):
@@ -151,6 +152,7 @@ class Coup(Action):
     return gameState
 
   def resolve(self, gameState):
+    gameState.players[gameState.playerTurn].coins -= 7
     gameState.punishedPlayers.append(self.target)
     return gameState
 
@@ -183,6 +185,8 @@ class Discard(Action):
     #if the player played ambassador card
     if self.player == gameState.playerExchange:
       gameState.deck.append(gameState.players[self.player].characters[self.characterIndex])
+    else:
+      gameState.inactiveCharacters[gameState.players[self.player].characters[self.characterIndex]] += 1
 
     del gameState.players[self.player].characters[self.characterIndex]
     return gameState

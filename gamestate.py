@@ -86,6 +86,8 @@ class GameState:
 
   def getLegalActions( self, playerIndex=0 ):
     playerState = self.players[playerIndex]
+    if len(playerState.characters) == 0:
+      return [None]
     if self.nextActionType == 'action':
       indexList = [x.playerIndex for x in self.players if len(x.characters) > 0 and x.playerIndex != playerIndex]
       if self.playerTurn != playerIndex:
@@ -103,14 +105,20 @@ class GameState:
             result.append(util.characterToAction[character])
       return util.ActionGenerator(result, playerIndex=playerIndex, otherPlayers=indexList)
     elif self.nextActionType == 'block':
+      #if the action is steal or assassination, then only the target can block
+      #if action is foreign aid, anyone can block
       if self.playerTurn == playerIndex:
         return [None]
       for character in playerState.characters:
         if self.currentAction in util.blockToCharacter and character in util.blockToCharacter[self.currentAction]:
-          return util.ActionGenerator(['block'], playerIndex=playerIndex) + [None]
+          if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
+            return util.ActionGenerator(['block'], playerIndex=playerIndex) + [None]
+          else:
+            return [None]
       return [None]
     elif self.nextActionType == 'challenge':
-      if self.currentAction not in util.basicActions:
+      if self.currentAction not in util.basicActions and ((self.playerBlock is not None and playerIndex != self.playerBlock) \
+        or (self.playerBlock is None and playerIndex != self.playerTurn)):
         return util.ActionGenerator(['challenge'], playerIndex=playerIndex) + [None]
       else:
         return [None]

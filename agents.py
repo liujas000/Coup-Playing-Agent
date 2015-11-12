@@ -24,6 +24,11 @@ class KeyboardAgent(Agent):
       print 'Please enter the number of action from the following list: '
       for i, a in enumerate(actions):
         print '(%d): %s' % (i+1, str(a))
-      action = int(raw_input())
-      if action <= len(actions):
-        return actions[action-1]
+      if len(actions) == 1:
+        return actions[0]
+      try:
+        action = int(raw_input())
+        if action <= len(actions):
+          return actions[action-1]
+      except:
+        print 'Invalid number, try again...'

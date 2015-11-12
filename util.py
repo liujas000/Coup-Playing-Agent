@@ -37,7 +37,8 @@ blocks = ['steal', 'assassinate', 'foreign aid']
 
 def ActionGenerator(actionList, playerIndex=0, otherPlayers=[], numCharacters=0):
 	result = []
-	for action in actionList:
+	actionSet = set(actionList)
+	for action in actionSet:
 		if action == 'income':
 			result += [Income()]
 		elif action == 'foreign aid':

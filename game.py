@@ -62,7 +62,7 @@ class Game:
 
       self.state.nextActionType = 'discard'
       for player in self.state.punishedPlayers:
-        discardAction = player.getAction(self.state)
+        discardAction = self.agents[player].getAction(self.state)
         self.state = discardAction.resolve(self.state)
 
       self.state.finishTurn() #resets the vars in gameState to None
