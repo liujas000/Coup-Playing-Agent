@@ -167,7 +167,7 @@ class Block(Action):
     return gameState
 
   def __str__(self):
-    return 'Block by: %r' % (playerBlock)
+    return 'Block by: %r' % (self.playerBlock)
 
 class Discard(Action):
 
