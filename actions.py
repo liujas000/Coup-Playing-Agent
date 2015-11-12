@@ -64,9 +64,6 @@ class Assassinate(Action):
 
 class Exchange(Action):
 
-  def __init__(self, playerExchange):
-    self.playerExchange = playerExchange
-
   def choose(self,gameState):
     gameState.currentAction = 'exchange'
     return gameState
@@ -74,10 +71,10 @@ class Exchange(Action):
   def resolve(self,gameState):
     # add 2 cards to players hand
     # TODO: these cards need to be distinguised from punished cards, put back in deck
-    gameState.playerExchange = self.playerExchange
+    gameState.playerExchange = gameState.playerTurn
     addCards = gameState.deck[0:2]
     gameState.deck = [2:]
-    gameState.punishedPlayer += [self.playerExchange, self.playerExchange]
+    gameState.punishedPlayer += [self.gameState.playerTurn, self.gameState.playerTurn]
     return gameState
 
 

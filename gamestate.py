@@ -1,4 +1,5 @@
 import collections
+from actions import *
 
 class GameState:
 
@@ -17,7 +18,6 @@ class GameState:
       self.playerTarget = None
       self.punishedPlayers = []
       self.deck = []
-      self.activePlayers = []
       self.inactiveCharacters = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
       self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
@@ -31,7 +31,6 @@ class GameState:
       self.playerTarget = prevState.playerTarget
       self.punishedPlayers = list(prevState.punishedPlayers)
       self.deck = list(prevState.deck)
-      self.activePlayers = list(prevState.activePlayers)
       self.inactiveCharacters = collections.Counter(prevState.inactiveCharacters)
       self.pastActions = list(prevState.pastActions)
       self.nextActionType = prevState.nextActionType
@@ -81,32 +80,31 @@ class GameState:
   def getLegalActions( self, playerIndex=0 ):
     playerState = self.players[playerIndex]
     if self.nextActionType == 'action':
+      indexList = [x.playerIndex for x in self.players if x.playerIndex != playerIndex]
       if self.playerTurn != playerIndex:
         return []
       result = ['income', 'foreign aid']
       if playerState.coins >= 10:
-        return ['coup']
-      elif playerState.coins >= 7:
-        result.append('coup')
+        return ActionGenerator(['coup'], playerIndex=playerIndex, indexList=indexList)
+      if playerState.coins >= 7:
+        result += ['coup']
+        # coupActions = [Coup(x.playerIndex) for x in self.players if len(x.characters) > 0 and x.playerIndex != playerIndex]
       #now, we look at characters
       for character in playerState.characters:
         if character in util.characterToAction:
           result.append(util.characterToAction[character])
-      return result
+      return ActionGenerator(result, playerIndex=playerIndex, indexList=indexList)
     elif self.nextActionType == 'block':
       if self.playerTurn == playerIndex:
         return [None]
       for character in playerState.characters:
         if character in blockToCharacter[self.currentAction]:
-          return ['block', None]
+          return ActionGenerator(['block'], playerIndex=playerIndex) + [None]
       return [None]
     elif self.nextActionType == 'challenge':
-      return ['challenge', None]
+      return ActionGenerator(['challenge'], playerIndex=playerIndex) + [None]
     elif self.nextActionType == 'discard':
-      result = []
-      for character, index in enumerate(playerState.characters):
-        result.append('discard '+index)
-      return result
+      return ActionGenerator(['discard'], playerIndex=playerIndex, numCharacters=len(self.players[playerIndex].characters))
 
   def finishTurn(self):
     self.currentAction = None
