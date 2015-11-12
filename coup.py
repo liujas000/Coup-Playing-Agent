@@ -73,9 +73,10 @@ def readCommand( argv ):
 
 def runGames(numGames=1):
   rules = GameRules()
-  game = rules.newGame()
+  game = rules.newGame() 
+  # agents???
   game.run()
-  
+
 if __name__ == '__main__':
 
   args = readCommand( sys.argv[1:] ) # Get game components based on input
