@@ -33,6 +33,28 @@ class GameState:
   def isOver( self ):
     len(self.activePlayers) <= 1
 
+  def printState(self):
+    print """
+      Players: %r
+      Active Players: %r
+      Number Players: %r
+      Player Turn: %r
+      Current Action: %r
+      Next Action Type: %r
+      Player Block: %r
+      Player Challenge: %r
+      Player Target: %r
+      Player Exchange: %r
+      Punished Players: %r
+      Past Actions: %r
+      Deck: %r
+      Inactive Characters: %r
+    """
+    % (self.players, self.activePlayers, self.numPlayers, self.playerTurn, self.currentAction, \
+      self.nextActionType, self.playerBlock, self.playerChallenge, self.playerTarget, self.playerExchange, \
+      self.punishedPlayers, self.pastActions, self.deck, self.inactiveCharacters)
+
+
   #############################################
   #             Helper methods:               #
   # You shouldn't need to call these directly #
