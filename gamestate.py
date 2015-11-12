@@ -1,18 +1,37 @@
 class GameState:
 
-  def getLegalActions( self, agentIndex=0 ):
+  def getLegalActions( self, playerIndex=0 ):
+    playerState = self.players[playerIndex]
+    if self.nextActionType == 'action':
+      if self.playerTurn != playerIndex:
+        return []
+      result = ['income', 'foreign aid']
+      if playerState.coins >= 10:
+        return ['coup']
+      elif playerState.coins >= 7:
+        result.append('coup')
+      #now, we look at characters
+      for character in playerState.characters:
+        if character in util.characterToAction:
+          result.append(util.characterToAction[character])
+      return result
+    elif self.nextActionType == 'block':
+      if self.playerTurn == playerIndex:
+        return [None]
+      for character in playerState.characters:
+        if character in blockToCharacter[self.currentAction]:
+          return ['block', None]
+      return [None]
+    elif self.nextActionType == 'challenge':
+      return ['challenge', None]
+    elif self.nextActionType == 'discard':
+      result = []
+      for character, index in enumerate(playerState.characters):
+        result.append('discard '+index)
+      return result
 
-  def generateSuccessor( self, action):
-
-  def getPlayerState( self ):
-
-  def getNumAgents( self ):
-
-  def getScore( self ):
-
-  def isLose( self ):
-
-  def isWin( self ):
+  def isOver( self ):
+    len(self.activePlayers) <= 1
 
   #############################################
   #             Helper methods:               #
@@ -28,14 +47,16 @@ class GameState:
       self.numPlayers = 0
       self.playerTurn = 0
       self.currentAction = None
+      self.playerExchange = None
       self.playerChallenge = None
       self.playerBlock = None
       self.playerTarget = None
-      self.punishedPlayer = None
+      self.punishedPlayers = []
       self.deck = []
       self.activePlayers = []
       self.inactiveCharacters = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
+      self.nextActionType = 'action' # can be 'action', 'block', 'challenge', 'discard'
 
       # has an action been chosen and by who
       # has a block been chosen and by who

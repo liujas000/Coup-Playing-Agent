@@ -20,15 +20,10 @@ class GameRules:
     """
     Checks to see whether it is time to end the game.
     """
-    if state.isWin(): self.win(state, game)
-    if state.isLose(): self.lose(state, game)
+    if state.isOver(): self.end(state, game)
 
-  def win( self, state, game ):
-    if not self.quiet: print "Pacman emerges victorious! Score: %d" % state.data.score
-    game.gameOver = True
-
-  def lose( self, state, game ):
-    if not self.quiet: print "Pacman died! Score: %d" % state.data.score
+  def end( self, state, game ):
+    print "Game over!", state
     game.gameOver = True
 
 class PlayerRules:
