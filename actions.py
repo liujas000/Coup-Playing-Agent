@@ -33,6 +33,9 @@ class Challenge(Action):
     gameState.punishedPlayer.append(self.punishedPlayer)
     return gameState
 
+  def __str__(self):
+    return 'Challenge by  %r' %(self.playerChallenge)
+
 class Tax(Action):
 
   def choose(self,gameState):
@@ -43,6 +46,9 @@ class Tax(Action):
     #Current player's coin amount += 3
     gameState.players[gameState.playerTurn].coins += 3
     return gameState
+
+  def __str__(self):
+    return 'Tax'
 
 class Assassinate(Action):
 
@@ -58,6 +64,9 @@ class Assassinate(Action):
   def resolve(gameState):
     gameState.punishedPlayer.append(self.target)
     return gameState
+
+  def __str__(self):
+    return 'Assassination of: %r' %(self.target)
 
 
 
@@ -76,6 +85,9 @@ class Exchange(Action):
     gameState.punishedPlayer += [self.gameState.playerTurn, self.gameState.playerTurn]
     return gameState
 
+  def __str__(self):
+    return 'Exchange'
+
 
 class Steal(Action):
 
@@ -87,12 +99,15 @@ class Steal(Action):
     gameState.playerTarget = self.target
     return gameState
 
-
   def resolve(self,gameState):
     stolenCoins = min(gameState.players[self.target].coins, 2)
     gameState.players[self.target].coins -= stolenCoins
     gameState.players[gameState.playerTurn].coins += stolenCoins
     return gameState
+
+  def __str__(self):
+    return 'Steal from: %r' %(self.target)
+
 
 class Income(Action):
 
@@ -105,6 +120,9 @@ class Income(Action):
     gameState.players[gameState.playerTurn].coins += 1
     return gameState
 
+  def __str__(self):
+    return 'Income'
+
 class ForeignAid(Action):
 
   def choose(self,gameState):
@@ -115,6 +133,9 @@ class ForeignAid(Action):
     #Current player's coin amount += 2
     gameState.players[gameState.playerTurn].coins += 2
     return gameState
+
+  def __str__(self):
+    return 'Foreign Aid'
 
 class Coup(Action):
 
@@ -129,6 +150,9 @@ class Coup(Action):
     gameState.punishedPlayer.append(self.target)
     return gameState
 
+  def __str__(self):
+    return 'Coup on: %r' % (self.target)
+
 class Block(Action):
 
   def __init__(self, playerBlock):
@@ -141,6 +165,9 @@ class Block(Action):
   def resolve(self, gameState):
     gameState.playerBlock = None
     return gameState
+
+  def __str__(self):
+    return 'Block by: %r' % (playerBlock)
 
 class Discard(Action):
 
@@ -155,3 +182,6 @@ class Discard(Action):
 
     del gameState.players[self.player].characters[self.characterIndex]
     return gameState
+
+  def __str__(self):
+    return 'Discard by: %r of: %r' %(self.player, self.characterIndex)
