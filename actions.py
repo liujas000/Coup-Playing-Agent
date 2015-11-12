@@ -27,7 +27,6 @@ class Challenge(Action):
       #want to see if playerTurn has that character
       result = any([True for x in characters if x in gameState.players[gameState.playerBlock]] )
       self.punishedPlayer = self.playerChallenge if result else playerBlock 
-
     return gameState
 
   def resolve(self,gameState):
@@ -73,7 +72,7 @@ class Exchange(Action):
     # TODO: these cards need to be distinguised from punished cards, put back in deck
     gameState.playerExchange = gameState.playerTurn
     addCards = gameState.deck[0:2]
-    gameState.deck = [2:]
+    gameState.deck = gameState.deck[2:]
     gameState.punishedPlayer += [self.gameState.playerTurn, self.gameState.playerTurn]
     return gameState
 
@@ -145,7 +144,7 @@ class Block(Action):
 
 class Discard(Action):
 
-  def __init__(self, gameState, player, characterIndex):
+  def __init__(self, player, characterIndex):
     self.characterIndex = characterIndex
     self.player = player
 

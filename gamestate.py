@@ -1,5 +1,7 @@
 import collections
+import random
 from actions import *
+import util
 
 class GameState:
 
@@ -69,23 +71,24 @@ class GameState:
     """
     Creates an initial game state given a number of players.
     """
-    self.deck = random.shuffle(['ambassador', 'assassin', 'captain', 'contessa', 'duke'] * 3)
+    self.deck = ['ambassador', 'assassin', 'captain', 'contessa', 'duke'] * 3
+    random.shuffle(self.deck)
     for i in range(numPlayers):
       nextCharacters = self.deck[0:2]
       self.deck = self.deck[2:]
-      s = playerState(i, nextCharacters) #initalizes player state with index number and two cards to have
+      s = PlayerState(i, nextCharacters) #initalizes player state with index number and two cards to have
       self.players.append(s)
     self.activePlayers = range(numPlayers)
 
   def getLegalActions( self, playerIndex=0 ):
     playerState = self.players[playerIndex]
     if self.nextActionType == 'action':
-      indexList = [x.playerIndex for x in self.players if x.playerIndex != playerIndex]
+      indexList = [x.playerIndex for x in self.players if len(x.characters) > 0 and x.playerIndex != playerIndex]
       if self.playerTurn != playerIndex:
         return []
       result = ['income', 'foreign aid']
       if playerState.coins >= 10:
-        return ActionGenerator(['coup'], playerIndex=playerIndex, indexList=indexList)
+        return util.ActionGenerator(['coup'], playerIndex=playerIndex, otherPlayers=indexList)
       if playerState.coins >= 7:
         result += ['coup']
         # coupActions = [Coup(x.playerIndex) for x in self.players if len(x.characters) > 0 and x.playerIndex != playerIndex]
@@ -93,18 +96,18 @@ class GameState:
       for character in playerState.characters:
         if character in util.characterToAction:
           result.append(util.characterToAction[character])
-      return ActionGenerator(result, playerIndex=playerIndex, indexList=indexList)
+      return util.ActionGenerator(result, playerIndex=playerIndex, otherPlayers=indexList)
     elif self.nextActionType == 'block':
       if self.playerTurn == playerIndex:
         return [None]
       for character in playerState.characters:
         if character in blockToCharacter[self.currentAction]:
-          return ActionGenerator(['block'], playerIndex=playerIndex) + [None]
+          return util.ActionGenerator(['block'], playerIndex=playerIndex) + [None]
       return [None]
     elif self.nextActionType == 'challenge':
-      return ActionGenerator(['challenge'], playerIndex=playerIndex) + [None]
+      return util.ActionGenerator(['challenge'], playerIndex=playerIndex) + [None]
     elif self.nextActionType == 'discard':
-      return ActionGenerator(['discard'], playerIndex=playerIndex, numCharacters=len(self.players[playerIndex].characters))
+      return util.ActionGenerator(['discard'], playerIndex=playerIndex, numCharacters=len(self.players[playerIndex].characters))
 
   def finishTurn(self):
     self.currentAction = None
@@ -115,10 +118,34 @@ class GameState:
     self.punishedPlayers = []
 
   def isOver( self ):
-    len(self.activePlayers) <= 1
+    all([len(player.characters) == 0 for player in self.players])
 
   def printState(self):
     print self
 
   def deepCopy( self ):
     return GameState(self)
+
+
+class PlayerState:
+  """
+  PlayerStates hold the state of a player (index, characters etc).
+  """
+
+  def __init__( self, index, characters ):
+    
+    self.playerIndex = index
+    self.characters = characters
+    self.coins = 2
+    self.inactiveCharacters = []
+    self.revealedCharacters = []
+
+  def __str__( self ):
+    return str(self.index)
+
+  # def __eq__( self, other ):
+
+  # def __hash__(self):
+
+  # def copy( self ):
+

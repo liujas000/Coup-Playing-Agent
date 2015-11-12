@@ -1,47 +1,48 @@
 from game import Game
+from agents import *
 import util 
 import sys, time, random, os # which ones of these do we need?
 
 
-class GameRules:
-  def __init__(self, timeout=30):
-    self.timeout = timeout
+# class GameRules:
+#   def __init__(self, timeout=30):
+#     self.timeout = timeout
 
-  def newGame(self):
-    game = Game()
-    return game
+#   def newGame(self):
+#     game = Game()
+#     return game
 
-  def process(self, state, game):
-    """
-    Checks to see whether it is time to end the game.
-    """
-    if state.isOver(): self.end(state, game)
+#   def process(self, state, game):
+#     """
+#     Checks to see whether it is time to end the game.
+#     """
+#     if state.isOver(): self.end(state, game)
 
-  def end( self, state, game ):
-    print "Game over!", state
-    game.gameOver = True
+#   def end( self, state, game ):
+#     print "Game over!", state
+#     game.gameOver = True
 
-class PlayerRules:
+# class PlayerRules:
 
-  def getLegalActions( state ):
-    """
-    Returns a list of possible actions.
-    """
-    return Actions.getPossibleActions()
+#   def getLegalActions( state ):
+#     """
+#     Returns a list of possible actions.
+#     """
+#     return Actions.getPossibleActions()
 
-  def applyAction( state, action ):
-    """
-    Edits the state to reflect the results of the action.
-    """
-    legal = PacmanRules.getLegalActions( state )
-    if action not in legal:
-      raise Exception("Illegal action " + str(action))
-    # do something
-  applyAction = staticmethod( applyAction )
+#   def applyAction( state, action ):
+#     """
+#     Edits the state to reflect the results of the action.
+#     """
+#     legal = PacmanRules.getLegalActions( state )
+#     if action not in legal:
+#       raise Exception("Illegal action " + str(action))
+#     # do something
+#   applyAction = staticmethod( applyAction )
 
 def default(str):
   return str + ' [Default: %default]'
-  
+
 def readCommand( argv ):
   """
   Processes the command used to run pacman from the command line.
@@ -70,9 +71,8 @@ def readCommand( argv ):
   return args
 
 def runGames(numGames=1):
-  rules = GameRules()
-  game = rules.newGame() 
-  # agents???
+  agents = [KeyboardAgent(x) for x in range(3)]
+  game = Game(agents) 
   game.run()
 
 if __name__ == '__main__':

@@ -1,55 +1,6 @@
 from util import *
 from gamestate import GameState
 
-#######################
-# Parts worth reading #
-#######################
-
-class Agent:
-  """
-  An agent must define a getAction method, but may also define the
-  following methods which will be called if they exist:
-
-  def registerInitialState(self, state): # inspects the starting state
-  """
-  def __init__(self, index=0):
-    self.index = index
-
-  def getAction(self, state):
-    """
-    The Agent will receive a GameState (from either {pacman, capture, sonar}.py) and
-    must return an action from Directions.{North, South, East, West, Stop}
-    """
-    raiseNotDefined()
-
-class PlayerState:
-  """
-  PlayerStates hold the state of a player (index, characters etc).
-  """
-
-  def __init__( self, index, characters ):
-    
-    self.index = index
-    self.characters = characters
-    self.coins = 2
-    self.inactiveCharacters = []
-    self.revealedCharacters = []
-
-  def __str__( self ):
-    return str(self.index)
-
-  # def __eq__( self, other ):
-
-  # def __hash__(self):
-
-  # def copy( self ):
-
-
-class Actions:
-
-  def getPossibleActions(config, walls):
-    return None
-  getPossibleActions = staticmethod(getPossibleActions)
 
 class Game:
   """
@@ -59,7 +10,7 @@ class Game:
   def __init__(self, agents = []):
     self.gameOver = False
     state = GameState()
-    state.numPlayers = len(agents)
+    state.initialize(len(agents))
     self.state = state
     self.agents = agents
 
@@ -74,9 +25,9 @@ class Game:
     """
     Main control loop for game play.
     """
-    for i in range(len(self.agents)):
-      agent = self.agents[i]
-      agent.registerInitialState(self.state.deepCopy())
+    # for i in range(len(self.agents)):
+    #   agent = self.agents[i]
+      # agent.registerInitialState(self.state.deepCopy())
 
     numAgents = len( self.agents )
 
