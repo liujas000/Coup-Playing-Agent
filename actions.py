@@ -1,3 +1,5 @@
+import util
+
 class Action:
   def __init__( self ):
     pass
@@ -22,15 +24,17 @@ class Challenge(Action):
       #want to see if playerTurn has that character
       result = any([True for x in characters if x in gameState.players[gameState.playerTurn]] )
       self.punishedPlayer = self.playerChallenge if result else playerTurn 
+      self.challengeSuccess = not result
     else:
       characters = util.blockToCharacter[gameState.currentAction] #character is a list
       #want to see if playerTurn has that character
       result = any([True for x in characters if x in gameState.players[gameState.playerBlock]] )
       self.punishedPlayer = self.playerChallenge if result else playerBlock 
+      self.challengeSuccess = not result
     return gameState
 
   def resolve(self,gameState):
-    gameState.punishedPlayer.append(self.punishedPlayer)
+    gameState.punishedPlayers.append(self.punishedPlayer)
     return gameState
 
   def __str__(self):
@@ -61,8 +65,8 @@ class Assassinate(Action):
     gameState.playerTarget = self.target
     return gameState
 
-  def resolve(gameState):
-    gameState.punishedPlayer.append(self.target)
+  def resolve(self,gameState):
+    gameState.punishedPlayers.append(self.target)
     return gameState
 
   def __str__(self):
@@ -82,7 +86,7 @@ class Exchange(Action):
     gameState.playerExchange = gameState.playerTurn
     addCards = gameState.deck[0:2]
     gameState.deck = gameState.deck[2:]
-    gameState.punishedPlayer += [self.gameState.playerTurn, self.gameState.playerTurn]
+    gameState.punishedPlayers += [self.gameState.playerTurn, self.gameState.playerTurn]
     return gameState
 
   def __str__(self):
@@ -147,7 +151,7 @@ class Coup(Action):
     return gameState
 
   def resolve(self, gameState):
-    gameState.punishedPlayer.append(self.target)
+    gameState.punishedPlayers.append(self.target)
     return gameState
 
   def __str__(self):

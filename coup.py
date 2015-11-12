@@ -3,43 +3,6 @@ from agents import *
 import util 
 import sys, time, random, os # which ones of these do we need?
 
-
-# class GameRules:
-#   def __init__(self, timeout=30):
-#     self.timeout = timeout
-
-#   def newGame(self):
-#     game = Game()
-#     return game
-
-#   def process(self, state, game):
-#     """
-#     Checks to see whether it is time to end the game.
-#     """
-#     if state.isOver(): self.end(state, game)
-
-#   def end( self, state, game ):
-#     print "Game over!", state
-#     game.gameOver = True
-
-# class PlayerRules:
-
-#   def getLegalActions( state ):
-#     """
-#     Returns a list of possible actions.
-#     """
-#     return Actions.getPossibleActions()
-
-#   def applyAction( state, action ):
-#     """
-#     Edits the state to reflect the results of the action.
-#     """
-#     legal = PacmanRules.getLegalActions( state )
-#     if action not in legal:
-#       raise Exception("Illegal action " + str(action))
-#     # do something
-#   applyAction = staticmethod( applyAction )
-
 def default(str):
   return str + ' [Default: %default]'
 

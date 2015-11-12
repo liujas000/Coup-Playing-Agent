@@ -18,8 +18,8 @@ class Game:
     for agent in self.agents:
       block = agent.getAction(self.state.deepCopy())
       if block is not None:
-        return block, agent
-    return None, None
+        return block
+    return None
 
   def run( self ):
     """
@@ -40,39 +40,34 @@ class Game:
       # Execute the action
       # self.state = self.state.generateSuccessor( action )
       self.state = action.choose(self.state)
-      self.state.nextActionType = 'block'
-      block, b_player = self.getBlockOrChallenge()
-      if block is not None:
-        self.state = block.choose(self.state)
-        self.state.nextActionType = 'challenge'
-        challenge, c_player = self.getBlockOrChallenge()
-        if challenge is not None:
-          challenge.resolve(b_player, c_player, block)
-          # resolve initial action?
-      else:
-        self.state.nextActionType = 'challenge'
-        challenge, c_player = self.getBlockOrChallenge()
-        if challenge is not None:
-          challenge.resolve(agent, c_player, action)
+      self.state.nextActionType = 'challenge'
+      challenge = self.getBlockOrChallenge()
+      if challenge is not None:
+        self.state = challenge.choose(self.state)
+        self.state = challenge.resolve(self.state)
+      if challenge is None or not self.state.challengeSuccess:
+        self.state.nextActionType = 'block'
+        block = self.getBlockOrChallenge()
+        if block is not None:
+          self.state = block.choose(self.state)
+          self.state.nextActionType = 'challenge'
+          challenge = self.getBlockOrChallenge()
+          if challenge is not None:
+            self.state = challenge.choose(self.state)
+            self.state = challenge.resolve(self.state)
+            if self.state.challengeSuccess:
+              self.state = action.resolve(self.state)
         else:
           self.state = action.resolve(self.state)
-
-      #scan gamestate, punish any players necessary, and reset some vars to None
-      if self.state.punishedPlayer is not None:
-        punishAction = self.agents[punishedPlayer].getAction(self.state.deepCopy())
 
       self.state.nextActionType = 'discard'
       for player in self.state.punishedPlayers:
         discardAction = player.getAction(self.state)
-        self.state = discardAction.resolve()
+        self.state = discardAction.resolve(self.state)
 
       self.state.finishTurn() #resets the vars in gameState to None
 
-      # Allow for game specific conditions (winning, losing, etc.)
-      self.rules.process(self.state, self)
-
-      # Next agent
-      agentIndex = ( agentIndex + 1 ) % numAgents
+      self.gameOver = self.state.isOver()
 
     # inform a learning agent of the game result
     for agent in self.agents:

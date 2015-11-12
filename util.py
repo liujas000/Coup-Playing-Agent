@@ -58,4 +58,5 @@ def ActionGenerator(actionList, playerIndex=0, otherPlayers=[], numCharacters=0)
 			result += [Steal(x) for x in otherPlayers]
 		elif action == 'discard':
 			result += [Discard(playerIndex, x) for x in range(numCharacters)]
+	return result
 

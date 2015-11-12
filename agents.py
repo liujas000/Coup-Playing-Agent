@@ -22,8 +22,8 @@ class KeyboardAgent(Agent):
     print '===========STATE BEGIN===========\n',state,'\n===========STATE END============='
     while True:
       print 'Please enter the number of action from the following list: '
-      for a, i in enumerate(actions):
+      for i, a in enumerate(actions):
         print '(%d): %s' % (i+1, str(a))
-      action = raw_input()
+      action = int(raw_input())
       if action <= len(actions):
         return actions[action-1]
