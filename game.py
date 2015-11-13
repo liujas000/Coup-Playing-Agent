@@ -74,6 +74,8 @@ class Game:
       if "final" in dir( agent ) :
         agent.final( self.state )
 
+    print "Game over! Final state: \n", self.state
+
 
 
 

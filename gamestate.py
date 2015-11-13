@@ -138,7 +138,9 @@ class GameState:
         break
 
   def isOver( self ):
-    all([len(player.characters) == 0 for player in self.players])
+    activePlayers = [1 for player in self.players if len(player.characters) > 0]
+    return sum(activePlayers) <= 1
+    
 
   def printState(self):
     print self
