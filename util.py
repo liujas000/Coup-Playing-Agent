@@ -31,6 +31,19 @@ influenceToBlock = {
 	'duke:' : 'foreign aid'
 }
 
+actionToReaction = {
+	'action': [Block, Challenge, Discard],
+	'block': [Challenge, Discard],
+	'challenge': [Discard]
+}
+
+reactionToNextAction = {
+	Action: 'action',
+	Block: 'block',
+	Challenge: 'challenge',
+	Discard: 'discard'
+}
+
 basicActions = ['income', 'foreign aid', 'coup']
 specialActions = ['steal', 'assassinate', 'exchange', 'tax']
 blocks = ['steal', 'assassinate', 'foreign aid']

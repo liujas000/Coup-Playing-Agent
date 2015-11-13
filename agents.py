@@ -46,3 +46,30 @@ class RandomAgent(Agent):
     print "Agent %d takes %s: %s" % (self.index, state.nextActionType, str(a))
     return a
 
+class ReflexAgent(Agent):
+
+  def evaluationFunction(self, state):
+    selfState = state.players[self.index]
+    otherStates = [x for x in state.players if x.playerIndex != self.index]
+    
+    ownInfluences = len(selfState.influences)
+    otherInfluences = sum([len(x.influences) for x in otherStates])
+
+    return ownInfluences - otherInfluences
+
+  def getAction(self, state):
+    actionList = state.getBluffActions(self.index)
+    return max([(self.evaluationFunction(state.generateSuccessor(a)), a) for a in actionList])[1]
+
+
+
+
+
+
+
+
+
+
+
+
+

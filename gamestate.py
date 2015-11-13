@@ -148,7 +148,21 @@ class GameState:
   def deepCopy( self ):
     return GameState(self)
 
+  def generateSuccessorState(self, action, playerIndex):
+    nextState = action.choose(self)
+    otherPlayers = [x.playerIndex for x in state.players if x.playerIndex != playerIndex]
+    result = []
+    reactionList = util.actionToReaction[self.nextActionType]
 
+    for o in otherPlayers:
+      for constructor in reactionList
+        reaction = constructor(o)
+        nextState = constructor.choose(nextState)
+        nextState.nextActionType = util.reactionToNextAction[constructor]
+        result.append(nextState)
+    return result
+
+    
 class PlayerState:
   """
   PlayerStates hold the state of a player (index, Influences etc).
