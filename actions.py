@@ -44,6 +44,7 @@ class Tax(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'tax'
+    gameState.players[gameState.playerTurn].possibleCharacters['duke'] += 1 
     return gameState
 
   def resolve(self,gameState):
@@ -61,6 +62,7 @@ class Assassinate(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'assassinate'
+    gameState.players[gameState.playerTurn].possibleCharacters['assassin'] += 1 
     gameState.players[gameState.playerTurn].coins -= 3
     gameState.playerTarget = self.target
     return gameState
@@ -78,6 +80,7 @@ class Exchange(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'exchange'
+    gameState.players[gameState.playerTurn].possibleCharacters['ambassador'] += 1 
     return gameState
 
   def resolve(self,gameState):
@@ -101,6 +104,7 @@ class Steal(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'steal'
+    gameState.players[gameState.playerTurn].possibleCharacters['captain'] += 1 
     gameState.playerTarget = self.target
     return gameState
 
@@ -166,6 +170,13 @@ class Block(Action):
 
   def choose(self, gameState):
     gameState.playerBlock = self.playerBlock
+    if gameState.currentAction == 'foreign aid'
+      gameState.players[gameState.playerTurn].possibleCharacters['duke'] += 1 
+    elif gameState.currentAction == 'assassinate'
+      gameState.players[gameState.playerTurn].possibleCharacters['contessa'] += 1 
+    elif gameState.currentAction == 'steal'
+      gameState.players[gameState.playerTurn].possibleCharacters['captain'] += 0.5
+      gameState.players[gameState.playerTurn].possibleCharacters['ambassador'] += 0.5 
     return gameState
 
   def resolve(self, gameState):

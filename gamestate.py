@@ -161,6 +161,7 @@ class PlayerState:
     self.coins = 2
     self.inactiveCharacters = []
     self.revealedCharacters = []
+    self.possibleCharacters = collections.Counter()
 
   def __str__( self ):
     return str(self.playerIndex) + ': ' + str(self.characters) + ' (%d coins)' % self.coins
