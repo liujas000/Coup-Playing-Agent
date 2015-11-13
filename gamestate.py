@@ -23,7 +23,7 @@ class GameState:
       self.inactiveInfluences = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
       self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
-      self.challengeSuccess = False
+      self.challengeSuccess = None
     else:
       self.players = list(prevState.players)
       self.numPlayers = prevState.numPlayers
@@ -164,15 +164,34 @@ class GameState:
     self.playerTarget = None
     self.playerExchange = None
     self.punishedPlayers = []
+    self.challengeSuccess = None
     while True:
       self.playerTurn = (self.playerTurn + 1) % self.numPlayers
       if len(self.players[self.playerTurn].influences) > 0:
         break
 
+  # Returns:
+  #   Dictionary{ Player -> ([list of influences], boolean hasInfluence}
+  #   nextState can follow self if:
+  #     if hasInfluence: Player must have at least one influence in list
+  #     if not hasInfluence: Player must not have any influences in list
+  def requiredInfluencesForState(self, nextState):
+    requiredInfluences = {}
+    if self.nextActionType == 'action':
+      requiredInfluences[self.playerTurn] = (util.actionToInfluence[nextState.currentAction], True)
+    elif self.nextActionType == 'block' and nextState.playerBlock is not None:
+      requiredInfluences[nextState.playerBlock] = (util.blockToInfluence[self.currentAction], True)
+    elif self.nextActionType == 'challenge' and nextState.playerChallenge is not None:
+      if self.playerBlock == None:
+        requiredInfluences[self.playerTurn] = (util.actionToInfluence[self.currentAction], not nextState.challengeSuccess)
+      else:
+        requiredInfluences[self.playerBlock] = (util.blockToInfluence[self.currentAction], not nextState.challengeSuccess)
+    # discard?
+    return requiredInfluences
+
   def isOver( self ):
     activePlayers = [1 for player in self.players if len(player.influences) > 0]
     return sum(activePlayers) <= 1
-    
 
   def printState(self):
     print self
