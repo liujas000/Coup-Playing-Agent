@@ -17,6 +17,9 @@ class Challenge(Action):
 
   def choose(self,gameState):
     gameState.playerChallenge = self.playerChallenge
+    return gameState
+
+  def resolve(self,gameState):
     actionIsBlock = gameState.playerBlock is not None
     lastPlayer = gameState.playerBlock if actionIsBlock else gameState.playerTurn
     if not actionIsBlock:
@@ -31,9 +34,9 @@ class Challenge(Action):
       result = any([True for x in influences if x in gameState.players[gameState.playerBlock].influences] )
       self.punishedPlayer = self.playerChallenge if result else playerBlock 
       self.challengeSuccess = not result
-    return gameState
+      gameState.blockSuccess = not self.challengeSuccess 
 
-  def resolve(self,gameState):
+    gameState.challengeSuccess = self.challengeSuccess
     gameState.punishedPlayers.append(self.punishedPlayer)
     return gameState
 
@@ -180,7 +183,7 @@ class Block(Action):
     return gameState
 
   def resolve(self, gameState):
-    gameState.playerBlock = None
+    gameState.blockSuccess = True
     return gameState
 
   def __str__(self):

@@ -23,7 +23,8 @@ class GameState:
       self.inactiveInfluences = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
       self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
-      self.challengeSuccess = None
+      self.challengeSuccess = False
+      self.blockSuccess = False
     else:
       self.players = list(prevState.players)
       self.numPlayers = prevState.numPlayers
@@ -39,6 +40,7 @@ class GameState:
       self.pastActions = list(prevState.pastActions)
       self.nextActionType = prevState.nextActionType
       self.challengeSuccess = prevState.challengeSuccess
+      self.blockSuccess = prevState.blockSuccess
     
   def __eq__( self, other ):
     """
@@ -164,7 +166,8 @@ class GameState:
     self.playerTarget = None
     self.playerExchange = None
     self.punishedPlayers = []
-    self.challengeSuccess = None
+    self.challengeSuccess = False
+    self.blockSuccess = False
     while True:
       self.playerTurn = (self.playerTurn + 1) % self.numPlayers
       if len(self.players[self.playerTurn].influences) > 0:
