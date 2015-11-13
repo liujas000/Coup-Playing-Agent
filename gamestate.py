@@ -97,24 +97,21 @@ class GameState:
         return util.ActionGenerator(['coup'], playerIndex=playerIndex, otherPlayers=indexList)
       if playerState.coins >= 7:
         result += ['coup']
-        # coupActions = [Coup(x.playerIndex) for x in self.players if len(x.influences) > 0 and x.playerIndex != playerIndex]
       #now, we look at Influences
-      for Influence in playerState.influences:
-        if Influence in util.influenceToAction:
-          if Influence != 'assassin' or playerState.coins >= 3:
-            result.append(util.influenceToAction[Influence])
+      for influence in playerState.influences:
+        if influence in util.influenceToAction:
+          if influence != 'assassin' or playerState.coins >= 3:
+            result.append(util.influenceToAction[influence])
       return util.ActionGenerator(result, playerIndex=playerIndex, otherPlayers=indexList)
     elif self.nextActionType == 'block':
       #if the action is steal or assassination, then only the target can block
       #if action is foreign aid, anyone can block
       if self.playerTurn == playerIndex:
         return [None]
-      for Influence in playerState.influences:
-        if self.currentAction in util.blockToInfluence and Influence in util.blockToInfluence[self.currentAction]:
-          if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
+      if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
+        for influence in playerState.influences:
+          if self.currentAction in util.blockToInfluence and influence in util.blockToInfluence[self.currentAction]:
             return util.ActionGenerator(['block'], playerIndex=playerIndex) + [None]
-          else:
-            return [None]
       return [None]
     elif self.nextActionType == 'challenge':
       if self.currentAction not in util.basicActions and ((self.playerBlock is not None and playerIndex != self.playerBlock) \
@@ -124,6 +121,41 @@ class GameState:
         return [None]
     elif self.nextActionType == 'discard':
       return util.ActionGenerator(['discard'], playerIndex=playerIndex, numInfluences=len(self.players[playerIndex].influences))
+
+  def getBluffActions( self, playerIndex=0 ):
+    playerState = self.players[playerIndex]
+    if len(playerState.influences) == 0:
+      return []
+    if self.nextActionType == 'action':
+      indexList = [x.playerIndex for x in self.players if len(x.influences) > 0 and x.playerIndex != playerIndex]
+      if self.playerTurn != playerIndex:
+        return []
+      if playerState.coins >= 10:
+        return []
+      for influence in util.influenceList:
+        if influence not in playerState.influences:
+          if influence in util.influenceToAction:
+            if influence != 'assassin' or playerState.coins >= 3:
+              result.append(util.influenceToAction[influence])
+      return util.ActionGenerator(result, playerIndex=playerIndex, otherPlayers=indexList)
+    elif self.nextActionType == 'block':
+      if self.playerTurn == playerIndex:
+        return []
+      if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
+        canBlock = False
+        for influence in self.characters:
+          if influence in util.blockToInfluence[self.currentAction]
+            canBlock = True
+        if canBlock:
+          return []
+        else:
+          return util.ActionGenerator(['block'], playerIndex=playerIndex)
+      else:
+        return []
+    elif self.nextActionType == 'challenge':
+      return []
+    elif self.nextActionType == 'discard':
+      return []
 
   def finishTurn(self):
     self.currentAction = None
