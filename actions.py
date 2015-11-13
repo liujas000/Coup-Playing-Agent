@@ -16,6 +16,7 @@ class Challenge(Action):
     self.playerChallenge = playerChallenge
 
   def choose(self,gameState):
+    gameState.actionStack.append(self)
     gameState.playerChallenge = self.playerChallenge
     actionIsBlock = gameState.playerBlock is not None
     lastPlayer = gameState.playerBlock if actionIsBlock else gameState.playerTurn
@@ -34,6 +35,9 @@ class Challenge(Action):
     return gameState
 
   def resolve(self,gameState):
+    gameState.challengeSuccess = self.challengeSuccess
+    if self.challengeSuccess:
+      gameState.actionStack.pop()
     gameState.punishedPlayers.append(self.punishedPlayer)
     return gameState
 
@@ -44,6 +48,7 @@ class Tax(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'tax'
+    gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['duke'] += 1 
     return gameState
 
@@ -62,6 +67,7 @@ class Assassinate(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'assassinate'
+    gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['assassin'] += 1 
     gameState.players[gameState.playerTurn].coins -= 3
     gameState.playerTarget = self.target
@@ -80,6 +86,7 @@ class Exchange(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'exchange'
+    gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['ambassador'] += 1 
     return gameState
 
@@ -104,6 +111,7 @@ class Steal(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'steal'
+    gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['captain'] += 1 
     gameState.playerTarget = self.target
     return gameState
@@ -122,6 +130,7 @@ class Income(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'income'
+    gameState.actionStack.append(self)
     return gameState
 
   def resolve(self,gameState):
@@ -136,6 +145,7 @@ class ForeignAid(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'foreign aid'
+    gameState.actionStack.append(self)
     return gameState
 
   def resolve(self,gameState):
@@ -153,6 +163,7 @@ class Coup(Action):
 
   def choose(self, gameState):
     gameState.currentAction = 'coup'
+    gameState.actionStack.append(self)
     return gameState
 
   def resolve(self, gameState):
@@ -170,6 +181,7 @@ class Block(Action):
 
   def choose(self, gameState):
     gameState.playerBlock = self.playerBlock
+    gameState.actionStack.append(self)
     if gameState.currentAction == 'foreign aid':
       gameState.players[gameState.playerTurn].possibleInfluences['duke'] += 1 
     elif gameState.currentAction == 'assassinate':
@@ -181,6 +193,7 @@ class Block(Action):
 
   def resolve(self, gameState):
     gameState.playerBlock = None
+    gameState.actionStack.pop()
     return gameState
 
   def __str__(self):
@@ -191,6 +204,10 @@ class Discard(Action):
   def __init__(self, player, InfluenceIndex):
     self.influenceIndex = InfluenceIndex
     self.player = player
+
+  def choose(self, gameState):
+    gameState.actionStack.insert(0, self)
+    return gameState
 
   def resolve(self, gameState):
     #if the player played ambassador card

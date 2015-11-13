@@ -44,7 +44,6 @@ class Game:
       challenge = self.getBlockOrChallenge()
       if challenge is not None:
         self.state = challenge.choose(self.state)
-        self.state = challenge.resolve(self.state)
       if challenge is None or not self.state.challengeSuccess:
         self.state.nextActionType = 'block'
         block = self.getBlockOrChallenge()
@@ -54,17 +53,15 @@ class Game:
           challenge = self.getBlockOrChallenge()
           if challenge is not None:
             self.state = challenge.choose(self.state)
-            self.state = challenge.resolve(self.state)
-            if self.state.challengeSuccess:
-              self.state = action.resolve(self.state)
-        else:
-          self.state = action.resolve(self.state)
+
+      self.state = self.state.resolveActions()
 
       self.state.nextActionType = 'discard'
       for player in self.state.punishedPlayers:
         discardAction = self.agents[player].getAction(self.state)
-        self.state = discardAction.resolve(self.state)
+        self.state = discardAction.choose(self.state)
 
+      self.state = self.state.resolveActions()
       self.state.finishTurn() #resets the vars in gameState to None
 
       self.gameOver = self.state.isOver()

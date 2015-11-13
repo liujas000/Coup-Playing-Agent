@@ -24,6 +24,7 @@ class GameState:
       self.pastActions = [] #list of counters, one for each player
       self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
       self.challengeSuccess = None
+      self.actionStack = []
     else:
       self.players = list(prevState.players)
       self.numPlayers = prevState.numPlayers
@@ -39,6 +40,7 @@ class GameState:
       self.pastActions = list(prevState.pastActions)
       self.nextActionType = prevState.nextActionType
       self.challengeSuccess = prevState.challengeSuccess
+      self.actionStack = list(prevState.actionStack)
     
   def __eq__( self, other ):
     """
@@ -144,7 +146,7 @@ class GameState:
       if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
         canBlock = False
         for influence in self.characters:
-          if influence in util.blockToInfluence[self.currentAction]
+          if influence in util.blockToInfluence[self.currentAction]:
             canBlock = True
         if canBlock:
           return []
@@ -157,7 +159,16 @@ class GameState:
     elif self.nextActionType == 'discard':
       return []
 
+  def resolveActions(self):
+    nextState = self
+    while len(self.actionStack) > 0:
+      nextAction = self.actionStack.pop()
+      print 'resolving', nextAction
+      nextState = nextAction.resolve(nextState)
+    return nextState
+
   def finishTurn(self):
+    print self
     self.currentAction = None
     self.playerChallenge = None
     self.playerBlock = None
@@ -200,18 +211,19 @@ class GameState:
     return GameState(self)
 
   def generateSuccessorState(self, action, playerIndex):
-    nextState = action.choose(self)
-    otherPlayers = [x.playerIndex for x in state.players if x.playerIndex != playerIndex]
-    result = []
-    reactionList = util.actionToReaction[self.nextActionType]
+    pass
+    # nextState = action.choose(self)
+    # otherPlayers = [x.playerIndex for x in state.players if x.playerIndex != playerIndex]
+    # result = []
+    # reactionList = util.actionToReaction[self.nextActionType]
 
-    for o in otherPlayers:
-      for constructor in reactionList
-        reaction = constructor(o)
-        nextState = constructor.choose(nextState)
-        nextState.nextActionType = util.reactionToNextAction[constructor]
-        result.append(nextState)
-    return result
+    # for o in otherPlayers:
+    #   for constructor in reactionList
+    #     reaction = constructor(o)
+    #     nextState = constructor.choose(nextState)
+    #     nextState.nextActionType = util.reactionToNextAction[constructor]
+    #     result.append(nextState)
+    # return result
 
     
 class PlayerState:
