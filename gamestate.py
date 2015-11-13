@@ -20,7 +20,7 @@ class GameState:
       self.playerTarget = None
       self.punishedPlayers = []
       self.deck = []
-      self.inactiveCharacters = collections.Counter()
+      self.inactiveInfluences = collections.Counter()
       self.pastActions = [] #list of counters, one for each player
       self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
       self.challengeSuccess = False
@@ -35,7 +35,7 @@ class GameState:
       self.playerTarget = prevState.playerTarget
       self.punishedPlayers = list(prevState.punishedPlayers)
       self.deck = list(prevState.deck)
-      self.inactiveCharacters = collections.Counter(prevState.inactiveCharacters)
+      self.inactiveInfluences = collections.Counter(prevState.inactiveInfluences)
       self.pastActions = list(prevState.pastActions)
       self.nextActionType = prevState.nextActionType
       self.challengeSuccess = prevState.challengeSuccess
@@ -65,10 +65,10 @@ class GameState:
       Punished Players: %r
       Past Actions: %r
       Deck: %r
-      Inactive Characters: %r
+      Inactive Influences: %r
     """ % ([str(player) for player in self.players], self.numPlayers, self.playerTurn, self.currentAction, \
       self.nextActionType, self.playerBlock, self.playerChallenge, self.challengeSuccess, self.playerTarget, \
-      self.playerExchange, self.punishedPlayers, self.pastActions, self.deck, self.inactiveCharacters)
+      self.playerExchange, self.punishedPlayers, self.pastActions, self.deck, self.inactiveInfluences)
 
   def initialize( self, numPlayers=4 ):
     """
@@ -78,18 +78,18 @@ class GameState:
     self.deck = ['ambassador', 'assassin', 'captain', 'contessa', 'duke'] * 3
     random.shuffle(self.deck)
     for i in range(numPlayers):
-      nextCharacters = self.deck[0:2]
+      nextInfluences = self.deck[0:2]
       self.deck = self.deck[2:]
-      s = PlayerState(i, nextCharacters) #initalizes player state with index number and two cards to have
+      s = PlayerState(i, nextInfluences) #initalizes player state with index number and two cards to have
       self.players.append(s)
     self.activePlayers = range(numPlayers)
 
   def getLegalActions( self, playerIndex=0 ):
     playerState = self.players[playerIndex]
-    if len(playerState.characters) == 0:
+    if len(playerState.influences) == 0:
       return [None]
     if self.nextActionType == 'action':
-      indexList = [x.playerIndex for x in self.players if len(x.characters) > 0 and x.playerIndex != playerIndex]
+      indexList = [x.playerIndex for x in self.players if len(x.influences) > 0 and x.playerIndex != playerIndex]
       if self.playerTurn != playerIndex:
         return []
       result = ['income', 'foreign aid']
@@ -97,20 +97,20 @@ class GameState:
         return util.ActionGenerator(['coup'], playerIndex=playerIndex, otherPlayers=indexList)
       if playerState.coins >= 7:
         result += ['coup']
-        # coupActions = [Coup(x.playerIndex) for x in self.players if len(x.characters) > 0 and x.playerIndex != playerIndex]
-      #now, we look at characters
-      for character in playerState.characters:
-        if character in util.characterToAction:
-          if character != 'assassin' or playerState.coins >= 3:
-            result.append(util.characterToAction[character])
+        # coupActions = [Coup(x.playerIndex) for x in self.players if len(x.influences) > 0 and x.playerIndex != playerIndex]
+      #now, we look at Influences
+      for Influence in playerState.influences:
+        if Influence in util.influenceToAction:
+          if Influence != 'assassin' or playerState.coins >= 3:
+            result.append(util.influenceToAction[Influence])
       return util.ActionGenerator(result, playerIndex=playerIndex, otherPlayers=indexList)
     elif self.nextActionType == 'block':
       #if the action is steal or assassination, then only the target can block
       #if action is foreign aid, anyone can block
       if self.playerTurn == playerIndex:
         return [None]
-      for character in playerState.characters:
-        if self.currentAction in util.blockToCharacter and character in util.blockToCharacter[self.currentAction]:
+      for Influence in playerState.influences:
+        if self.currentAction in util.blockToInfluence and Influence in util.blockToInfluence[self.currentAction]:
           if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
             return util.ActionGenerator(['block'], playerIndex=playerIndex) + [None]
           else:
@@ -123,7 +123,7 @@ class GameState:
       else:
         return [None]
     elif self.nextActionType == 'discard':
-      return util.ActionGenerator(['discard'], playerIndex=playerIndex, numCharacters=len(self.players[playerIndex].characters))
+      return util.ActionGenerator(['discard'], playerIndex=playerIndex, numInfluences=len(self.players[playerIndex].influences))
 
   def finishTurn(self):
     self.currentAction = None
@@ -134,11 +134,11 @@ class GameState:
     self.punishedPlayers = []
     while True:
       self.playerTurn = (self.playerTurn + 1) % self.numPlayers
-      if len(self.players[self.playerTurn].characters) > 0:
+      if len(self.players[self.playerTurn].influences) > 0:
         break
 
   def isOver( self ):
-    activePlayers = [1 for player in self.players if len(player.characters) > 0]
+    activePlayers = [1 for player in self.players if len(player.influences) > 0]
     return sum(activePlayers) <= 1
     
 
@@ -151,20 +151,20 @@ class GameState:
 
 class PlayerState:
   """
-  PlayerStates hold the state of a player (index, characters etc).
+  PlayerStates hold the state of a player (index, Influences etc).
   """
 
-  def __init__( self, index, characters ):
+  def __init__( self, index, influences ):
     
     self.playerIndex = index
-    self.characters = characters
+    self.influences = influences
     self.coins = 2
-    self.inactiveCharacters = []
-    self.revealedCharacters = []
-    self.possibleCharacters = collections.Counter()
+    self.inactiveInfluences = []
+    self.revealedInfluences = []
+    self.possibleInfluences = collections.Counter()
 
   def __str__( self ):
-    return str(self.playerIndex) + ': ' + str(self.characters) + ' (%d coins)' % self.coins
+    return str(self.playerIndex) + ': ' + str(self.influences) + ' (%d coins)' % self.coins
 
   # def __eq__( self, other ):
 

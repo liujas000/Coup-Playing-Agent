@@ -20,15 +20,15 @@ class Challenge(Action):
     actionIsBlock = gameState.playerBlock is not None
     lastPlayer = gameState.playerBlock if actionIsBlock else gameState.playerTurn
     if not actionIsBlock:
-      characters = util.actionToCharacter[gameState.currentAction] #character is a list
-      #want to see if playerTurn has that character
-      result = any([True for x in characters if x in gameState.players[gameState.playerTurn].characters] )
+      influences = util.actionToInfluence[gameState.currentAction] #Influence is a list
+      #want to see if playerTurn has that Influence
+      result = any([True for x in influences if x in gameState.players[gameState.playerTurn].influences] )
       self.punishedPlayer = self.playerChallenge if result else playerTurn 
       self.challengeSuccess = not result
     else:
-      characters = util.blockToCharacter[gameState.currentAction] #character is a list
-      #want to see if playerTurn has that character
-      result = any([True for x in characters if x in gameState.players[gameState.playerBlock].characters] )
+      influences = util.blockToInfluence[gameState.currentAction] #Influence is a list
+      #want to see if playerTurn has that Influence
+      result = any([True for x in influences if x in gameState.players[gameState.playerBlock].influences] )
       self.punishedPlayer = self.playerChallenge if result else playerBlock 
       self.challengeSuccess = not result
     return gameState
@@ -44,7 +44,7 @@ class Tax(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'tax'
-    gameState.players[gameState.playerTurn].possibleCharacters['duke'] += 1 
+    gameState.players[gameState.playerTurn].possibleInfluences['duke'] += 1 
     return gameState
 
   def resolve(self,gameState):
@@ -62,7 +62,7 @@ class Assassinate(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'assassinate'
-    gameState.players[gameState.playerTurn].possibleCharacters['assassin'] += 1 
+    gameState.players[gameState.playerTurn].possibleInfluences['assassin'] += 1 
     gameState.players[gameState.playerTurn].coins -= 3
     gameState.playerTarget = self.target
     return gameState
@@ -80,7 +80,7 @@ class Exchange(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'exchange'
-    gameState.players[gameState.playerTurn].possibleCharacters['ambassador'] += 1 
+    gameState.players[gameState.playerTurn].possibleInfluences['ambassador'] += 1 
     return gameState
 
   def resolve(self,gameState):
@@ -89,7 +89,7 @@ class Exchange(Action):
     gameState.playerExchange = gameState.playerTurn
     addCards = gameState.deck[0:2]
     gameState.deck = gameState.deck[2:]
-    gameState.players[gameState.playerTurn].characters += addCards
+    gameState.players[gameState.playerTurn].influences += addCards
     gameState.punishedPlayers += [gameState.playerTurn, gameState.playerTurn]
     return gameState
 
@@ -104,7 +104,7 @@ class Steal(Action):
 
   def choose(self,gameState):
     gameState.currentAction = 'steal'
-    gameState.players[gameState.playerTurn].possibleCharacters['captain'] += 1 
+    gameState.players[gameState.playerTurn].possibleInfluences['captain'] += 1 
     gameState.playerTarget = self.target
     return gameState
 
@@ -170,13 +170,13 @@ class Block(Action):
 
   def choose(self, gameState):
     gameState.playerBlock = self.playerBlock
-    if gameState.currentAction == 'foreign aid'
-      gameState.players[gameState.playerTurn].possibleCharacters['duke'] += 1 
-    elif gameState.currentAction == 'assassinate'
-      gameState.players[gameState.playerTurn].possibleCharacters['contessa'] += 1 
-    elif gameState.currentAction == 'steal'
-      gameState.players[gameState.playerTurn].possibleCharacters['captain'] += 0.5
-      gameState.players[gameState.playerTurn].possibleCharacters['ambassador'] += 0.5 
+    if gameState.currentAction == 'foreign aid':
+      gameState.players[gameState.playerTurn].possibleInfluences['duke'] += 1 
+    elif gameState.currentAction == 'assassinate':
+      gameState.players[gameState.playerTurn].possibleInfluences['contessa'] += 1 
+    elif gameState.currentAction == 'steal':
+      gameState.players[gameState.playerTurn].possibleInfluences['captain'] += 0.5
+      gameState.players[gameState.playerTurn].possibleInfluences['ambassador'] += 0.5 
     return gameState
 
   def resolve(self, gameState):
@@ -188,19 +188,19 @@ class Block(Action):
 
 class Discard(Action):
 
-  def __init__(self, player, characterIndex):
-    self.characterIndex = characterIndex
+  def __init__(self, player, InfluenceIndex):
+    self.influenceIndex = InfluenceIndex
     self.player = player
 
   def resolve(self, gameState):
     #if the player played ambassador card
     if self.player == gameState.playerExchange:
-      gameState.deck.append(gameState.players[self.player].characters[self.characterIndex])
+      gameState.deck.append(gameState.players[self.player].influences[self.influenceIndex])
     else:
-      gameState.inactiveCharacters[gameState.players[self.player].characters[self.characterIndex]] += 1
+      gameState.inactiveInfluences[gameState.players[self.player].influences[self.influenceIndex]] += 1
 
-    del gameState.players[self.player].characters[self.characterIndex]
+    del gameState.players[self.player].influences[self.influenceIndex]
     return gameState
 
   def __str__(self):
-    return 'Discard by: %r of: %r' %(self.player, self.characterIndex)
+    return 'Discard by: %r of: %r' %(self.player, self.influenceIndex)
