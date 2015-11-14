@@ -218,7 +218,7 @@ class GameState:
     return nextState
 
   def resolveActions(self):
-    nextState = self
+    nextState = self.deepCopy()
     while len(self.actionStack) > 0:
       nextAction = self.actionStack.pop()
       # print 'resolving', nextAction
@@ -226,7 +226,7 @@ class GameState:
     return nextState
 
   def finishTurn(self):
-    nextState = self
+    nextState = self.deepCopy()
     nextState.nextActionType = 'action'
     nextState.currentAction = None
     nextState.playerChallenge = None
