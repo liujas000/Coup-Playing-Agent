@@ -77,6 +77,27 @@ class GameState:
       self.nextActionType, self.playerBlock, self.playerChallenge, self.challengeSuccess, self.playerTarget, \
       self.playerExchange, self.punishedPlayers, self.pastActions, self.deck, self.inactiveInfluences)
 
+  def detailedStr(self):
+    out = str(self)
+    out += """
+      Challenge Success: %r
+      Block Phase Occured: %r
+      Players: 
+      """ % (self.challengeSuccess, self.blockPhaseOccured)
+    for p in self.players:
+      out += '\n\t%s\n\t\tInactive Influences: %s\n\t\tRevealed Influences: %s\n\t\tPossible Influences: %s' % (p, p.inactiveInfluences, p.revealedInfluences, p.possibleInfluences)
+    out += '\n\tAction Stack:'
+    for a in self.actionStack:
+      out += '\n\t\t%s' % a
+    out += '\n\tPlayers that can act: %r' % self.playersCanAct
+    out += '\n\tPossible actions for each player:'
+    for p in range(len(self.players)):
+      astring = ''
+      for a in self.getAllActions(p):
+        astring +=  '\n\t\t\t%s' % a
+      out += '\n\t\t%d: %s' % (p, astring)
+    return out
+
   def initialize( self, numPlayers=4 ):
     """
     Creates an initial game state given a number of players.
@@ -252,6 +273,10 @@ class GameState:
     return GameState(self)
 
   def generateSuccessorStates(self, action, playerIndex):
+    if action is None:
+      newState = self.deepCopy()
+      newState = newState.continueTurn()
+      return [newState]
     if self.nextActionType == 'challenge':
       successState = self.deepCopy()
       successState = action.choose(successState)

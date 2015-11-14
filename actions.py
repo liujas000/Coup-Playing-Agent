@@ -24,13 +24,13 @@ class Challenge(Action):
       influences = util.actionToInfluence[gameState.currentAction] #Influence is a list
       #want to see if playerTurn has that Influence
       result = any([True for x in influences if x in gameState.players[gameState.playerTurn].influences] )
-      self.punishedPlayer = self.playerChallenge if result else playerTurn 
+      self.punishedPlayer = self.playerChallenge if result else gameState.playerTurn 
       self.challengeSuccess = not result
     else:
       influences = util.blockToInfluence[gameState.currentAction] #Influence is a list
       #want to see if playerTurn has that Influence
       result = any([True for x in influences if x in gameState.players[gameState.playerBlock].influences] )
-      self.punishedPlayer = self.playerChallenge if result else playerBlock 
+      self.punishedPlayer = self.playerChallenge if result else gameState.playerBlock 
       self.challengeSuccess = not result
     return gameState
 
@@ -201,8 +201,8 @@ class Block(Action):
 
 class Discard(Action):
 
-  def __init__(self, player, InfluenceIndex):
-    self.influenceIndex = InfluenceIndex
+  def __init__(self, player, influenceIndex):
+    self.influenceIndex = influenceIndex
     self.player = player
 
   def choose(self, gameState):
@@ -211,13 +211,19 @@ class Discard(Action):
 
   def resolve(self, gameState):
     #if the player played ambassador card
+    influences = gameState.players[self.player].influences
+    if len(influences) == 0:
+      return gameState
+    if len(influences) >= self.influenceIndex:
+      self.influenceIndex = len(influences) - 1
+    print influences, self.influenceIndex
+    print influences[self.influenceIndex]
     if self.player == gameState.playerExchange:
-      gameState.deck.append(gameState.players[self.player].influences[self.influenceIndex])
+      gameState.deck.append(influences[self.influenceIndex])
     else:
-      gameState.inactiveInfluences[gameState.players[self.player].influences[self.influenceIndex]] += 1
-
+      gameState.inactiveInfluences[influences[self.influenceIndex]] += 1
     del gameState.players[self.player].influences[self.influenceIndex]
     return gameState
 
   def __str__(self):
-    return 'Discard by: %r of: %r' %(self.player, self.influenceIndex)
+    return 'Discard by: %r [%d]' %(self.player, self.influenceIndex)

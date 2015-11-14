@@ -63,6 +63,17 @@ class ReflexAgent(Agent):
 
 class LookaheadAgent(Agent):
 
+  def evaluationFunction(self, state):
+    score = 0
+    playerState = state.players[self.index]
+    score += len(playerState.influences) * 100
+    score += playerState.coins
+    for i, p in enumerate(state.players):
+      if i != self.index:
+        score -= 10 * len(p.influences)
+    print 'score', score
+    return score
+
   def getAction(self, state):
 
     def vopt(s, d):
@@ -70,24 +81,19 @@ class LookaheadAgent(Agent):
       if d == 0:
         return self.evaluationFunction(s), None
       possibleActions = []
-      print s
+      print s.detailedStr()
       print s.playersCanAct
       for player in s.playersCanAct:
         for action in s.getAllActions(player):
           print player, action
-          newState = s.generateSuccessorStates(action, player)
-          print 'newState: ', newState
-          newD = d - 1
-          print 'calling vopt'
-          possibleActions.append((vopt(newState[0], newD)[0], action))
-      if s.playersCanAct == [self.index]:
-        return max(possibleActions)
-      else:
-        return min(possibleActions)
-      v, a = vopt(gameState, self.depth, self.index)
-      return a
+          newStates = s.generateSuccessorStates(action, player)
+          for s in newStates:
+            print 'calling vopt from depth %d' % d
+            possibleActions.append((vopt(s, d - 1)[0], action))
+      return max(possibleActions)
 
-    return vopt(state, 5)
+    v, a = vopt(state, 1)
+    return a
 
 
 
