@@ -19,7 +19,8 @@ class Game:
     Main control loop for game play.
     """
     numAgents = len( self.agents )
-
+    print self.state.detailedStr()
+    raw_input()
     while not self.state.isOver():
       for player in self.state.playersCanAct:
         action = self.agents[player].getAction(self.state)

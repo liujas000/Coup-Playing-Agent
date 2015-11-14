@@ -71,6 +71,7 @@ class LookaheadAgent(Agent):
     for i, p in enumerate(state.players):
       if i != self.index:
         score -= 10 * len(p.influences)
+    score += sum([-100 if x == self.index else +10 for x in state.punishedPlayers ])
     print 'score', score
     return score
 
@@ -99,7 +100,46 @@ class LookaheadAgent(Agent):
     v, a = vopt(state.deepCopy(), 5)
     return a
 
+class OracleAgent(Agent):
 
+  def evaluationFunction(self, state):
+    score = 0
+    playerState = state.players[self.index]
+    score += len(playerState.influences) * 100
+    score += playerState.coins
+    for i, p in enumerate(state.players):
+      if i != self.index:
+        score -= 10 * len(p.influences)
+    score += sum([-100 if x == self.index else +10 for x in state.punishedPlayers ])
+    return score
+
+  def getAction(self, state):
+    def vopt(s, d):
+      if s.isOver():
+        if len(state.players[self.index].influences) >0:
+          return 99999999, [None]
+        return -9999999, [None]
+      if d == 0:
+        return self.evaluationFunction(s), None
+      possibleActions = []
+      for player in s.playersCanAct:
+        tempActions = []
+        for action in s.getAllActions(player):
+          # print 'THIS IS S', s.detailedStr()
+          newStates = s.generateSuccessorStates(action, player)
+          # print 'THIS IS NEWSTATES[0] at d=%d performing action %s' %(d, action), newStates[0].detailedStr()
+          # print 'Player %d has %d states from action %s' % (player, len(newStates), action)
+          for successorState in newStates:
+            tempActions.append((vopt(successorState, d - 1)[0], action))
+        if player == self.index:
+          possibleActions.append(max(tempActions))
+        else:
+          possibleActions.append(min(tempActions))
+      return max(possibleActions)
+
+    v, a = vopt(state.deepCopy(), 5)
+    print self.index,a,v, state.nextActionType, state.actionStack
+    return a
 
 
 
