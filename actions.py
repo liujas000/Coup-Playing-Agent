@@ -4,18 +4,21 @@ class Action:
   def __init__( self ):
     pass
 
-  def choose(self,gameState):
-    pass
+  def choose(self,state):
+    gameState = state.deepCopy()
+    return gameState
 
-  def resolve(self,gameState):
-    pass
+  def resolve(self,state):
+    gameState = state.deepCopy()
+    return gameState
 
 class Challenge(Action):
   
   def __init__(self, playerChallenge):
     self.playerChallenge = playerChallenge
 
-  def choose(self,gameState):
+  def choose(self,state):
+    gameState = state.deepCopy()
     gameState.actionStack.append(self)
     gameState.playerChallenge = self.playerChallenge
     actionIsBlock = gameState.playerBlock is not None
@@ -34,7 +37,8 @@ class Challenge(Action):
       self.challengeSuccess = not result
     return gameState
 
-  def resolve(self,gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     gameState.challengeSuccess = self.challengeSuccess
     if self.challengeSuccess:
       gameState.actionStack.pop()
@@ -46,13 +50,15 @@ class Challenge(Action):
 
 class Tax(Action):
 
-  def choose(self,gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'tax'
     gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['duke'] += 1 
     return gameState
 
-  def resolve(self,gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     #Current player's coin amount += 3
     gameState.players[gameState.playerTurn].coins += 3
     return gameState
@@ -65,7 +71,8 @@ class Assassinate(Action):
   def __init__(self, target):
     self.target = target
 
-  def choose(self,gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'assassinate'
     gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['assassin'] += 1 
@@ -73,7 +80,8 @@ class Assassinate(Action):
     gameState.playerTarget = self.target
     return gameState
 
-  def resolve(self,gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     gameState.punishedPlayers.append(self.target)
     return gameState
 
@@ -84,15 +92,15 @@ class Assassinate(Action):
 
 class Exchange(Action):
 
-  def choose(self,gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'exchange'
     gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['ambassador'] += 1 
     return gameState
 
-  def resolve(self,gameState):
-    # add 2 cards to players hand
-    # TODO: these cards need to be distinguised from punished cards, put back in deck
+  def resolve(self, state):
+    gameState = state.deepCopy()
     gameState.playerExchange = gameState.playerTurn
     addCards = gameState.deck[0:2]
     gameState.deck = gameState.deck[2:]
@@ -109,14 +117,16 @@ class Steal(Action):
   def __init__(self, target):
     self.target = target
 
-  def choose(self,gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'steal'
     gameState.actionStack.append(self)
     gameState.players[gameState.playerTurn].possibleInfluences['captain'] += 1 
     gameState.playerTarget = self.target
     return gameState
 
-  def resolve(self,gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     stolenCoins = min(gameState.players[self.target].coins, 2)
     gameState.players[self.target].coins -= stolenCoins
     gameState.players[gameState.playerTurn].coins += stolenCoins
@@ -128,12 +138,14 @@ class Steal(Action):
 
 class Income(Action):
 
-  def choose(self,gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'income'
     gameState.actionStack.append(self)
     return gameState
 
-  def resolve(self,gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     #Current player's coin amount += 1
     gameState.players[gameState.playerTurn].coins += 1
     return gameState
@@ -143,12 +155,14 @@ class Income(Action):
 
 class ForeignAid(Action):
 
-  def choose(self,gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'foreign aid'
     gameState.actionStack.append(self)
     return gameState
 
-  def resolve(self,gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     #Current player's coin amount += 2
     gameState.players[gameState.playerTurn].coins += 2
     return gameState
@@ -161,12 +175,14 @@ class Coup(Action):
   def __init__(self, target):
     self.target = target
 
-  def choose(self, gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.currentAction = 'coup'
     gameState.actionStack.append(self)
     return gameState
 
-  def resolve(self, gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     gameState.players[gameState.playerTurn].coins -= 7
     gameState.punishedPlayers.append(self.target)
     return gameState
@@ -179,7 +195,8 @@ class Block(Action):
   def __init__(self, playerBlock):
     self.playerBlock = playerBlock
 
-  def choose(self, gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.playerBlock = self.playerBlock
     gameState.actionStack.append(self)
     if gameState.currentAction == 'foreign aid':
@@ -191,7 +208,8 @@ class Block(Action):
       gameState.players[gameState.playerTurn].possibleInfluences['ambassador'] += 0.5 
     return gameState
 
-  def resolve(self, gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     gameState.playerBlock = None
     gameState.actionStack.pop()
     return gameState
@@ -205,11 +223,13 @@ class Discard(Action):
     self.influenceIndex = influenceIndex
     self.player = player
 
-  def choose(self, gameState):
+  def choose(self, state):
+    gameState = state.deepCopy()
     gameState.actionStack.insert(0, self)
     return gameState
 
-  def resolve(self, gameState):
+  def resolve(self, state):
+    gameState = state.deepCopy()
     #if the player played ambassador card
     influences = gameState.players[self.player].influences
     if len(influences) == 0:
