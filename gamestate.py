@@ -24,7 +24,9 @@ class GameState:
       self.pastActions = [] #list of counters, one for each player
       self.nextActionType = None # can be 'action', 'block', 'challenge', 'discard'
       self.challengeSuccess = None
+      self.blockPhaseOccured = False
       self.actionStack = []
+      self.playersCanAct = []
     else:
       self.players = list(prevState.players)
       self.numPlayers = prevState.numPlayers
@@ -41,6 +43,8 @@ class GameState:
       self.nextActionType = prevState.nextActionType
       self.challengeSuccess = prevState.challengeSuccess
       self.actionStack = list(prevState.actionStack)
+      self.playersCanAct = list(prevState.playersCanAct)
+      self.blockPhaseOccured = prevState.blockPhaseOccured
     
   def __eq__( self, other ):
     """
@@ -84,7 +88,8 @@ class GameState:
       self.deck = self.deck[2:]
       s = PlayerState(i, nextInfluences) #initalizes player state with index number and two cards to have
       self.players.append(s)
-    self.activePlayers = range(numPlayers)
+    self.playersCanAct.append(0)
+    self.nextActionType = 'action'
 
   def getLegalActions( self, playerIndex=0 ):
     playerState = self.players[playerIndex]
@@ -159,27 +164,56 @@ class GameState:
     elif self.nextActionType == 'discard':
       return []
 
+  def continueTurn(self):
+    nextState = self
+    if self.nextActionType == 'discard':
+      nextState = nextState.resolveActions()
+      nextState = nextState.finishTurn()
+    elif self.nextActionType == 'challenge':
+      if not self.blockPhaseOccured and not self.challengeSuccess:
+        nextState.blockPhaseOccured = True
+        nextState.nextActionType = 'block'
+        nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] \
+          if nextState.currentAction not in util.blocks else []
+      else:
+        nextState = nextState.resolveActions()
+        nextState.nextActionType = 'discard'
+        nextState.playersCanAct = list(set(nextState.punishedPlayers))
+    elif self.nextActionType == 'block' and self.playerBlock == None:
+        nextState = nextState.resolveActions()
+        nextState.nextActionType = 'discard'
+        nextState.playersCanAct = list(set(nextState.punishedPlayers))
+    elif self.nextActionType == 'block' or self.nextActionType == 'action':
+      nextState.nextActionType = 'challenge'
+      nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] \
+        if nextState.currentAction not in util.basicActions else []
+    return nextState
+
   def resolveActions(self):
     nextState = self
     while len(self.actionStack) > 0:
       nextAction = self.actionStack.pop()
-      print 'resolving', nextAction
+      # print 'resolving', nextAction
       nextState = nextAction.resolve(nextState)
     return nextState
 
   def finishTurn(self):
-    print self
-    self.currentAction = None
-    self.playerChallenge = None
-    self.playerBlock = None
-    self.playerTarget = None
-    self.playerExchange = None
-    self.punishedPlayers = []
-    self.challengeSuccess = None
+    nextState = self
+    nextState.nextActionType = 'action'
+    nextState.currentAction = None
+    nextState.playerChallenge = None
+    nextState.playerBlock = None
+    nextState.playerTarget = None
+    nextState.playerExchange = None
+    nextState.punishedPlayers = []
+    nextState.challengeSuccess = None
+    nextState.blockPhaseOccured = False
     while True:
-      self.playerTurn = (self.playerTurn + 1) % self.numPlayers
-      if len(self.players[self.playerTurn].influences) > 0:
+      nextState.playerTurn = (nextState.playerTurn + 1) % nextState.numPlayers
+      if len(nextState.players[nextState.playerTurn].influences) > 0:
         break
+    nextState.playersCanAct = [nextState.playerTurn]
+    return nextState
 
   # Returns:
   #   Dictionary{ Player -> ([list of influences], boolean hasInfluence}
@@ -212,19 +246,6 @@ class GameState:
 
   def generateSuccessorState(self, action, playerIndex):
     pass
-    # nextState = action.choose(self)
-    # otherPlayers = [x.playerIndex for x in state.players if x.playerIndex != playerIndex]
-    # result = []
-    # reactionList = util.actionToReaction[self.nextActionType]
-
-    # for o in otherPlayers:
-    #   for constructor in reactionList
-    #     reaction = constructor(o)
-    #     nextState = constructor.choose(nextState)
-    #     nextState.nextActionType = util.reactionToNextAction[constructor]
-    #     result.append(nextState)
-    # return result
-
     
 class PlayerState:
   """
