@@ -192,9 +192,11 @@ class GameState:
 
   def continueTurn(self):
     nextState = self.deepCopy()
+    #print 'nextState:', nextState
     if self.nextActionType == 'discard':
       nextState = nextState.resolveActions()
-      nextState.playersCanAct = list(set([x for x in nextState.punishedPlayers if len(self.players[x].influences)>0]))
+      nextState.punishedPlayers = [x for x in nextState.punishedPlayers if len(nextState.players[x].influences)>0]
+      nextState.playersCanAct = list(set(nextState.punishedPlayers))
       if len(nextState.punishedPlayers) == 0:
         nextState = nextState.finishTurn()
     elif self.nextActionType == 'challenge':

@@ -124,7 +124,7 @@ class OracleAgent(Agent):
       possibleActions = []
       for player in s.playersCanAct:
         tempActions = []
-        for action in s.getAllActions(player):
+        for action in s.getLegalActions(player):
           # print 'THIS IS S', s.detailedStr()
           newStates = s.generateSuccessorStates(action, player)
           # print 'THIS IS NEWSTATES[0] at d=%d performing action %s' %(d, action), newStates[0].detailedStr()
