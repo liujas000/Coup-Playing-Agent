@@ -210,8 +210,9 @@ class Block(Action):
 
   def resolve(self, state):
     gameState = state.deepCopy()
-    gameState.playerBlock = None
-    gameState.actionStack.pop()
+    gameState.playerBlock = None # why?
+    if len(gameState.actionStack) > 0:
+      gameState.actionStack.pop()
     return gameState
 
   def __str__(self):

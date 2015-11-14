@@ -94,7 +94,7 @@ class LookaheadAgent(Agent):
             possibleActions.append((vopt(successorState, d - 1)[0], action))
       return max(possibleActions)
 
-    v, a = vopt(state.deepCopy(), 2)
+    v, a = vopt(state.deepCopy(), 5)
     return a
 
 
