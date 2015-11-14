@@ -77,6 +77,8 @@ class LookaheadAgent(Agent):
   def getAction(self, state):
 
     def vopt(s, d):
+      if s.isOver():
+        return 10000, [None]
       print 'vopt called: depth %d' %d
       if d == 0:
         print s.detailedStr()

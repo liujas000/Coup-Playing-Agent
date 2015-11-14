@@ -36,8 +36,8 @@ def readCommand( argv ):
 def runGames(numGames=1):
   # agents = [RandomAgent(x) for x in range(2)]
   # agents.append(KeyboardAgent(2))
-  agents = [LookaheadAgent(x) for x in range(1)]
-  agents.append(KeyboardAgent(1))
+  agents = [LookaheadAgent(x) for x in range(3)]
+  #agents.append(KeyboardAgent(1))
   game = Game(agents) 
   game.run()
 

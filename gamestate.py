@@ -194,6 +194,7 @@ class GameState:
     nextState = self.deepCopy()
     if self.nextActionType == 'discard':
       nextState = nextState.resolveActions()
+      nextState.playersCanAct = list(set(nextState.punishedPlayers))
       if len(nextState.punishedPlayers) == 0:
         nextState = nextState.finishTurn()
     elif self.nextActionType == 'challenge':

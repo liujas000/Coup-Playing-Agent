@@ -231,6 +231,7 @@ class Discard(Action):
 
   def resolve(self, state):
     gameState = state.deepCopy()
+    print gameState.detailedStr()
     gameState.punishedPlayers.remove(self.player)
     influences = gameState.players[self.player].influences
     if len(influences) == 0:
