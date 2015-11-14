@@ -2,6 +2,7 @@ import collections
 import random
 from actions import *
 import util
+import copy
 
 class GameState:
 
@@ -164,6 +165,9 @@ class GameState:
     elif self.nextActionType == 'discard':
       return []
 
+  def getAllActions(self, playerIndex): # be less hacky
+    return self.getLegalActions(playerIndex) + self.getBluffActions(playerIndex)
+
   def continueTurn(self):
     nextState = self
     if self.nextActionType == 'discard':
@@ -244,8 +248,24 @@ class GameState:
   def deepCopy( self ):
     return GameState(self)
 
-  def generateSuccessorState(self, action, playerIndex):
-    pass
+  def generateSuccessorStates(self, action, playerIndex):
+    if self.nextActionType == 'challenge':
+      successState = self.deepCopy()
+      successState = action.choose(successState)
+      successState.actionStack[-1].challengeSuccess = True
+      successState = successState.continueTurn()
+      failState = self.deepCopy()
+      failState = action.choose(successState)
+      failState.actionStack[-1].challengeSuccess = False
+      failState = failState.continueTurn()
+      return [successState, failState]
+    else:
+      # other RNG..... exchange???
+      newState = self.deepCopy()
+      newState = action.choose(newState)
+      newState = newState.continueTurn()
+      return [newState]
+
     
 class PlayerState:
   """
