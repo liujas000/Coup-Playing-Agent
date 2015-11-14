@@ -234,7 +234,7 @@ class Discard(Action):
     influences = gameState.players[self.player].influences
     if len(influences) == 0:
       return gameState
-    if len(influences) >= self.influenceIndex:
+    if len(influences) <= self.influenceIndex:
       self.influenceIndex = len(influences) - 1
     print influences, self.influenceIndex
     print influences[self.influenceIndex]

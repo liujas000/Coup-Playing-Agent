@@ -78,17 +78,21 @@ class LookaheadAgent(Agent):
 
     def vopt(s, d):
       print 'vopt called'
+      print s.detailedStr()
       if d == 0:
         return self.evaluationFunction(s), None
       possibleActions = []
-      print s.detailedStr()
       print s.playersCanAct
       for player in s.playersCanAct:
         for action in s.getAllActions(player):
-          print player, action
+          print 'THIS IS S', s.detailedStr()
           newStates = s.generateSuccessorStates(action, player)
+          print 'THIS IS S', s.detailedStr()
+          print 'THIS IS NEWSTATES[0]', newStates[0].detailedStr()
+          print 'Player %d has %d states from action %s' % (player, len(newStates), action)
           for s in newStates:
             print 'calling vopt from depth %d' % d
+            raw_input()
             possibleActions.append((vopt(s, d - 1)[0], action))
       return max(possibleActions)
 

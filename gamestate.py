@@ -173,8 +173,8 @@ class GameState:
         return []
       if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
         canBlock = False
-        for influence in self.characters:
-          if influence in util.blockToInfluence[self.currentAction]:
+        for influence in util.influenceList:
+          if influence in util.blockToInfluence[self.currentAction] and influence not in playerState.influences:
             canBlock = True
         if canBlock:
           return []
@@ -191,38 +191,44 @@ class GameState:
     return self.getLegalActions(playerIndex) + self.getBluffActions(playerIndex)
 
   def continueTurn(self):
+    print 'continueTurn state:', self.detailedStr()
     nextState = self.deepCopy()
     if self.nextActionType == 'discard':
+      print 'resolve from discard'
       nextState = nextState.resolveActions()
       nextState = nextState.finishTurn()
     elif self.nextActionType == 'challenge':
       if not self.blockPhaseOccured and not self.challengeSuccess:
         nextState.blockPhaseOccured = True
         nextState.nextActionType = 'block'
-        nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] \
-          if nextState.currentAction not in util.blocks else []
+        nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] 
+          # if nextState.currentAction not in util.blocks else []
       else:
+        print 'resolve from challenge'
         nextState = nextState.resolveActions()
         nextState.nextActionType = 'discard'
         nextState.playersCanAct = list(set(nextState.punishedPlayers))
-    elif self.nextActionType == 'block' and self.playerBlock == None:
+    elif self.nextActionType == 'block' and self.blockPhaseOccured == True:
+        print 'resolve from block'
         nextState = nextState.resolveActions()
         nextState.nextActionType = 'discard'
         nextState.playersCanAct = list(set(nextState.punishedPlayers))
     elif self.nextActionType == 'block' or self.nextActionType == 'action':
       nextState.nextActionType = 'challenge'
-      nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] \
-        if nextState.currentAction not in util.basicActions else []
+      nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn]
+        # if nextState.currentAction not in util.basicActions else []
     while len(nextState.playersCanAct) == 0:
       nextState = nextState.continueTurn()
     return nextState
 
   def resolveActions(self):
     nextState = self.deepCopy()
-    while len(self.actionStack) > 0:
-      nextAction = self.actionStack.pop()
-      # print 'resolving', nextAction
+    while len(nextState.actionStack) > 0:
+      print 'action stack before:', nextState.actionStack
+      nextAction = nextState.actionStack.pop()
+      print 'action stack between:', nextState.actionStack
       nextState = nextAction.resolve(nextState)
+      print 'action stack after:', nextState.actionStack
     return nextState
 
   def finishTurn(self):
