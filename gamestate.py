@@ -191,25 +191,24 @@ class GameState:
     return self.getLegalActions(playerIndex) + self.getBluffActions(playerIndex)
 
   def continueTurn(self):
-    print 'continueTurn state:', self.detailedStr()
     nextState = self.deepCopy()
     if self.nextActionType == 'discard':
-      print 'resolve from discard'
       nextState = nextState.resolveActions()
-      nextState = nextState.finishTurn()
+      if len(nextState.punishedPlayers) == 0:
+        nextState = nextState.finishTurn()
     elif self.nextActionType == 'challenge':
+      if self.playerChallenge is not None:
+        nextState = nextState.resolveTopAction()
       if not self.blockPhaseOccured and not self.challengeSuccess:
         nextState.blockPhaseOccured = True
         nextState.nextActionType = 'block'
         nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] 
           # if nextState.currentAction not in util.blocks else []
       else:
-        print 'resolve from challenge'
         nextState = nextState.resolveActions()
         nextState.nextActionType = 'discard'
         nextState.playersCanAct = list(set(nextState.punishedPlayers))
     elif self.nextActionType == 'block' and self.blockPhaseOccured == True:
-        print 'resolve from block'
         nextState = nextState.resolveActions()
         nextState.nextActionType = 'discard'
         nextState.playersCanAct = list(set(nextState.punishedPlayers))
@@ -224,11 +223,14 @@ class GameState:
   def resolveActions(self):
     nextState = self.deepCopy()
     while len(nextState.actionStack) > 0:
-      print 'action stack before:', nextState.actionStack
       nextAction = nextState.actionStack.pop()
-      print 'action stack between:', nextState.actionStack
       nextState = nextAction.resolve(nextState)
-      print 'action stack after:', nextState.actionStack
+    return nextState
+
+  def resolveTopAction(self):
+    nextState = self.deepCopy() 
+    nextAction = nextState.actionStack.pop()
+    nextState = nextAction.resolve(nextState)
     return nextState
 
   def finishTurn(self):
@@ -276,7 +278,8 @@ class GameState:
     print self
 
   def deepCopy( self ):
-    return GameState(self)
+    # return GameState(self)
+    return copy.deepcopy(self)
 
   def generateSuccessorStates(self, action, playerIndex):
     if action is None:

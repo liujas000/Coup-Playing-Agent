@@ -25,7 +25,7 @@ class KeyboardAgent(Agent):
     if len(actions) == 1:
       print "Agent %d takes %s: %s" % (self.index, state.nextActionType, str(actions[0]))
       return actions[0]
-    print '===========STATE BEGIN===========\n',state,'\n===========STATE END============='
+    print '===========STATE BEGIN===========\n',state.detailedStr(),'\n===========STATE END============='
     while True:
       print 'Please enter the number of action from the following list: '
       for i, a in enumerate(actions):
@@ -77,26 +77,24 @@ class LookaheadAgent(Agent):
   def getAction(self, state):
 
     def vopt(s, d):
-      print 'vopt called'
-      print s.detailedStr()
+      print 'vopt called: depth %d' %d
       if d == 0:
+        print s.detailedStr()
         return self.evaluationFunction(s), None
       possibleActions = []
       print s.playersCanAct
       for player in s.playersCanAct:
         for action in s.getAllActions(player):
-          print 'THIS IS S', s.detailedStr()
+          # print 'THIS IS S', s.detailedStr()
           newStates = s.generateSuccessorStates(action, player)
-          print 'THIS IS S', s.detailedStr()
-          print 'THIS IS NEWSTATES[0]', newStates[0].detailedStr()
-          print 'Player %d has %d states from action %s' % (player, len(newStates), action)
-          for s in newStates:
+          # print 'THIS IS NEWSTATES[0] at d=%d performing action %s' %(d, action), newStates[0].detailedStr()
+          # print 'Player %d has %d states from action %s' % (player, len(newStates), action)
+          for successorState in newStates:
             print 'calling vopt from depth %d' % d
-            raw_input()
-            possibleActions.append((vopt(s, d - 1)[0], action))
+            possibleActions.append((vopt(successorState, d - 1)[0], action))
       return max(possibleActions)
 
-    v, a = vopt(state, 1)
+    v, a = vopt(state.deepCopy(), 2)
     return a
 
 

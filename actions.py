@@ -230,11 +230,13 @@ class Discard(Action):
 
   def resolve(self, state):
     gameState = state.deepCopy()
-    #if the player played ambassador card
+    gameState.punishedPlayers.remove(self.player)
     influences = gameState.players[self.player].influences
     if len(influences) == 0:
+      print 'OOPS influences empty'
       return gameState
     if len(influences) <= self.influenceIndex:
+      print 'OOPS influences out of range'
       self.influenceIndex = len(influences) - 1
     print influences, self.influenceIndex
     print influences[self.influenceIndex]
