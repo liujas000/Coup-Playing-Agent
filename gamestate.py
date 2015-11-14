@@ -191,7 +191,7 @@ class GameState:
     return self.getLegalActions(playerIndex) + self.getBluffActions(playerIndex)
 
   def continueTurn(self):
-    nextState = self
+    nextState = self.deepCopy()
     if self.nextActionType == 'discard':
       nextState = nextState.resolveActions()
       nextState = nextState.finishTurn()
