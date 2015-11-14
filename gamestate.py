@@ -140,6 +140,7 @@ class GameState:
         return []
       if playerState.coins >= 10:
         return []
+      result = []
       for influence in util.influenceList:
         if influence not in playerState.influences:
           if influence in util.influenceToAction:
@@ -191,6 +192,8 @@ class GameState:
       nextState.nextActionType = 'challenge'
       nextState.playersCanAct = [p for p in range(nextState.numPlayers) if len(nextState.players[p].influences) != 0 and p != nextState.playerTurn] \
         if nextState.currentAction not in util.basicActions else []
+    while len(nextState.playersCanAct) == 0:
+      nextState = nextState.continueTurn()
     return nextState
 
   def resolveActions(self):
