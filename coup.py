@@ -38,7 +38,7 @@ def runGames(numGames=1):
   # agents.append(KeyboardAgent(2))
   #agents = [LookaheadAgent(x) for x in range(3)]
   #agents.append(KeyboardAgent(1))
-  agents = [OracleAgent(x) for x in range(3)]
+  agents = [ExpectimaxAgent(x) for x in range(3)]
   game = Game(agents) 
   game.run()
 

@@ -319,7 +319,7 @@ class PlayerState:
     self.coins = 2
     self.inactiveInfluences = []
     self.revealedInfluences = []
-    self.possibleInfluences = collections.Counter()
+    self.possibleInfluences = collections.Counter({influence: 1 for influence in util.influenceList})
 
   def __str__( self ):
     return str(self.playerIndex) + ': ' + str(self.influences) + ' (%d coins)' % self.coins

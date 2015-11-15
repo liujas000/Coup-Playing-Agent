@@ -141,15 +141,71 @@ class OracleAgent(Agent):
     print self.index,a,v, state.nextActionType, state.actionStack
     return a
 
+class ExpectimaxAgent(Agent):
 
+  def evaluationFunction(self, state):
+    score = 0
+    playerState = state.players[self.index]
+    score += len(playerState.influences) * 100
+    score += playerState.coins
+    for i, p in enumerate(state.players):
+      if i != self.index:
+        score -= 10 * len(p.influences)
+    score += sum([-100 if x == self.index else +10 for x in state.punishedPlayers ])
+    return score
 
+  def getAction(self, state):
+    def vopt(s, d, requirePlayerAction=None):
+      if s.isOver():
+        if len(state.players[self.index].influences) >0:
+          return 10000, [None]
+        return -10000, [None]
+      if d == 0:
+        return self.evaluationFunction(s), None
+      voptForSelf = ()
+      voptForEachOpponent = []
+      for player in s.playersCanAct:
+        voptForActionProbability = []
+        for action in (s.getAllActions(player) if player != self.index else s.getLegalActions(player)):
+          newStates = s.generateSuccessorStates(action, player)
+          for successorState in newStates:
+            requiredInfluences = s.requiredInfluencesForState(successorState)
+            probability = 1
+            for p in requiredInfluences:
+              possibleInfluences = s.players[p].possibleInfluences
+              normalization = sum(possibleInfluences)
+              influenceList, hasInfluence = requiredInfluences[p]
+              influenceSum = sum([possibleInfluences[x] for x in influenceList])
+              product = ((normalization - influenceSum) / normalization) ** len(s.players[p].influences)
+              probability *= 1 - product if hasInfluence else product
+            voptForActionProbability.append((vopt(successorState, d - 1)[0], action, probability))
+        if player == self.index:
+          actionToValueProb = {}
+          for value, action, probability in voptForActionProbability:
+            if action in actionToValueProb:
+              actionToValueProb[action].append(value, probability)
+            else:
+              actionToValueProb[action] = [(value, probability)]
+          actionToValue = {a: sum([v * p for v, p in actionToValueProb[a]])/sum([p for v, p in actionToValueProb[a]]) for a in actionToValueProb}
+          maxAction = max(actionToValue, key=lambda x : actionToValue[x])
+          maxValue = actionToValue[maxAction]
+          voptForSelf = (maxValue, maxAction)
+        else:
+          expectedVopt = 0
+          normalizationConstant = 0
+          for value, action, probability in voptForActionProbability:
+            expectedVopt += value * probability
+            normalizationConstant += probability
+          expectedVopt /= float(normalizationConstant)
+          voptForEachOpponent = (expectedVopt, player)
+      opponentVopt = min(voptForEachOpponent) if len(voptForEachOpponent) > 0 else ()
+      if len(opponentVopt) == 0:
+        return voptForSelf
+      elif len(voptForSelf) == 0:
+        return opponentVopt
+      else:
+        return max([opponentVopt, voptForSelf])
 
-
-
-
-
-
-
-
-
-
+    v, a = vopt(state.deepCopy(), 5, self.index)
+    print self.index,a,v, state.nextActionType, state.actionStack
+    return a
