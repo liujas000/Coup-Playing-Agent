@@ -110,7 +110,8 @@ class GameState:
       self.deck = self.deck[2:]
       s = PlayerState(i, nextInfluences) #initalizes player state with index number and two cards to have
       self.players.append(s)
-    self.playersCanAct.append(0)
+    self.playerTurn = random.randint(0, self.numPlayers - 1)
+    self.playersCanAct.append(self.playerTurn)
     self.nextActionType = 'action'
 
   def getLegalActions( self, playerIndex=0 ):
@@ -262,15 +263,14 @@ class GameState:
   def requiredInfluencesForState(self, nextState):
     requiredInfluences = {}
     if self.nextActionType == 'action':
-      requiredInfluences[self.playerTurn] = (util.actionToInfluence[nextState.currentAction], True)
+      requiredInfluences[self.playerTurn] = (util.actionToInfluence[nextState.currentAction], True) if nextState.currentAction in util.actionToInfluence else ([], True)
     elif self.nextActionType == 'block' and nextState.playerBlock is not None:
-      requiredInfluences[nextState.playerBlock] = (util.blockToInfluence[self.currentAction], True)
+      requiredInfluences[nextState.playerBlock] = (util.blockToInfluence[self.currentAction], True) if self.currentAction in util.blockToInfluence else ([], True)
     elif self.nextActionType == 'challenge' and nextState.playerChallenge is not None:
       if self.playerBlock == None:
-        requiredInfluences[self.playerTurn] = (util.actionToInfluence[self.currentAction], not nextState.challengeSuccess)
+        requiredInfluences[self.playerTurn] = (util.actionToInfluence[self.currentAction], not nextState.challengeSuccess) if self.currentAction in util.actionToInfluence else ([], False)
       else:
-        requiredInfluences[self.playerBlock] = (util.blockToInfluence[self.currentAction], not nextState.challengeSuccess)
-    # discard?
+        requiredInfluences[self.playerBlock] = (util.blockToInfluence[self.currentAction], not nextState.challengeSuccess) if self.currentAction in util.blockToInfluence else ([], False)
     return requiredInfluences
 
   def isOver( self ):

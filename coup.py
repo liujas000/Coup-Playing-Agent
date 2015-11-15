@@ -2,6 +2,7 @@ from game import Game
 from agents import *
 import util 
 import sys, time, random, os # which ones of these do we need?
+import collections
 
 def default(str):
   return str + ' [Default: %default]'
@@ -33,20 +34,24 @@ def readCommand( argv ):
 
   return args
 
-def runGames(numGames=1):
+def runGames(numGames=50):
   # agents = [RandomAgent(x) for x in range(2)]
   # agents.append(KeyboardAgent(2))
   #agents = [LookaheadAgent(x) for x in range(3)]
   #agents.append(KeyboardAgent(1))
-  agents = [ExpectimaxAgent(x) for x in range(3)]
-  game = Game(agents) 
-  game.run()
+  # agents = [ExpectimaxAgent(x) for x in range(3)]
+  wins = collections.Counter()
+  for i in range(numGames):
+    agents = [RandomAgent(0), RandomAgent(1), ExpectimaxAgent(2)]
+    game = Game(agents) 
+    winner = game.run()
+    wins[winner] += 1
+    print 'Current score:', wins
 
 if __name__ == '__main__':
 
   args = readCommand( sys.argv[1:] ) # Get game components based on input
   runGames( **args )
+  runGames()
 
-  # import cProfile
-  # cProfile.run("runGames( **args )")
   pass
