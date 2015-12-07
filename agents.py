@@ -185,10 +185,10 @@ class ExpectimaxAgent(Agent):
     score += sum([-100 if x == self.index else +10 for x in state.punishedPlayers ])
     return score
 
-  def getActions(player, s):
+  def getActions(self, player, s):
     return s.getAllActions(player) if player != self.index else s.getLegalActions(player)
 
-  def findProbability(state, successorState):
+  def findProbability(self, state, successorState):
     requiredInfluences = state.requiredInfluencesForState(successorState)
     probability = 1
     for p in requiredInfluences:
@@ -224,11 +224,11 @@ class ExpectimaxAgent(Agent):
       voptForEachOpponent = []
       for player in s.playersCanAct:
         voptForActionProbability = []
-        for action in getActions(player, s):
+        for action in self.getActions(player, s):
           newStates = s.generateSuccessorStates(action, player)
           for successorState in newStates:
             nextVopt = vopt(successorState, d - 1)
-            probability = findProbability(s, successorState)
+            probability = self.findProbability(s, successorState)
             voptForActionProbability.append((nextVopt[0], action, probability))
         if player == self.index:
           actionToValueProb = {}
@@ -266,11 +266,12 @@ class ExpectimaxAgent(Agent):
 
 class LyingExpectimaxAgent(ExpectimaxAgent):
 
-  def getActions(player, s):
+  def getActions(self, player, s):
     return s.getAllActions(player)
 
 class OracleExpectimaxAgent(ExpectimaxAgent):
-  def findProbability(state, successorState):
+  
+  def findProbability(self, state, successorState):
     requiredInfluences = state.requiredInfluencesForState(successorState)
     probability = 1
     for p in requiredInfluences:
