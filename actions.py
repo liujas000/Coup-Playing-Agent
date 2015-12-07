@@ -15,6 +15,7 @@ class Action:
 class Challenge(Action):
   
   def __init__(self, playerChallenge):
+    self.type = 'challenge'
     self.playerChallenge = playerChallenge
 
   def choose(self,state):
@@ -50,6 +51,9 @@ class Challenge(Action):
 
 class Tax(Action):
 
+  def __init__(self):
+    self.type = 'tax'
+
   def choose(self, state):
     gameState = state.deepCopy()
     gameState.currentAction = 'tax'
@@ -70,6 +74,7 @@ class Assassinate(Action):
 
   def __init__(self, target):
     self.target = target
+    self.type = 'assassinate'
 
   def choose(self, state):
     gameState = state.deepCopy()
@@ -91,6 +96,9 @@ class Assassinate(Action):
 
 
 class Exchange(Action):
+
+  def __init__(self):
+    self.type = 'exchange'
 
   def choose(self, state):
     gameState = state.deepCopy()
@@ -116,6 +124,7 @@ class Steal(Action):
 
   def __init__(self, target):
     self.target = target
+    self.type = 'steal'
 
   def choose(self, state):
     gameState = state.deepCopy()
@@ -138,6 +147,9 @@ class Steal(Action):
 
 class Income(Action):
 
+  def __init__(self):
+    self.type = 'income'
+
   def choose(self, state):
     gameState = state.deepCopy()
     gameState.currentAction = 'income'
@@ -154,6 +166,9 @@ class Income(Action):
     return 'Income'
 
 class ForeignAid(Action):
+
+  def __init__(self):
+    self.type = 'foreign aid'
 
   def choose(self, state):
     gameState = state.deepCopy()
@@ -174,6 +189,7 @@ class Coup(Action):
 
   def __init__(self, target):
     self.target = target
+    self.type = 'coup'
 
   def choose(self, state):
     gameState = state.deepCopy()
@@ -194,6 +210,7 @@ class Block(Action):
 
   def __init__(self, playerBlock):
     self.playerBlock = playerBlock
+    self.type = 'block'
 
   def choose(self, state):
     gameState = state.deepCopy()
@@ -223,6 +240,7 @@ class Discard(Action):
   def __init__(self, player, influenceIndex):
     self.influenceIndex = influenceIndex
     self.player = player
+    self.type = 'discard'
 
   def choose(self, state):
     gameState = state.deepCopy()

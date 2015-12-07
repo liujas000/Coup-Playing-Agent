@@ -92,6 +92,43 @@ class ReflexAgent(Agent):
     self.printAction(a, state)
     return a
 
+class LyingKillAgent(Agent):
+
+  def findAction(self, actionList, query):
+    for action in actionList:
+      if action and action.type == query:
+        return action
+    return None
+
+  def getAction(self, state):
+    selfState = state.players[self.index]
+    actionList = state.getAllActions(self.index)
+    random.shuffle(actionList)
+    actionList = [x for x in actionList if x is None or  x.type != 'challenge']
+    a = self.findAction(actionList, 'block')
+    if a:
+      self.printAction(a, state)
+      return a
+    if random.random() > 0.5:
+      a = self.findAction(actionList, 'assassinate')
+      if a:
+        self.printAction(a, state)
+        return a
+    else:
+      a = self.findAction(actionList, 'coup')
+      if a:
+        print actionList
+        self.printAction(a, state)
+        return a
+    a = self.findAction(actionList, 'tax')
+    if a:
+      self.printAction(a, state)
+      return a
+    a = random.choice(actionList)
+    self.printAction(a, state)
+    return a
+
+
 class LookaheadAgent(Agent):
 
   def evaluationFunction(self, state):

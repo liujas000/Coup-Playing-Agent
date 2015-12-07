@@ -191,6 +191,7 @@ class GameState:
   def getAllActions(self, playerIndex): # be less hacky
     return self.getLegalActions(playerIndex) + self.getBluffActions(playerIndex)
 
+
   def continueTurn(self):
     nextState = self.deepCopy()
     #print 'nextState:', nextState
