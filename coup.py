@@ -34,15 +34,10 @@ def readCommand( argv ):
 
   return args
 
-def runGames(numGames=50):
-  # agents = [RandomAgent(x) for x in range(2)]
-  # agents.append(KeyboardAgent(2))
-  #agents = [LookaheadAgent(x) for x in range(3)]
-  #agents.append(KeyboardAgent(1))
-  # agents = [ExpectimaxAgent(x) for x in range(3)]
+def runGames(numGames=100):
   wins = collections.Counter()
   for i in range(numGames):
-    agents = [RandomAgent(0), RandomAgent(1), ExpectimaxAgent(2)]
+    agents = [RandomAgentExcludeChallenge(0), RandomAgentExcludeChallenge(1), LyingExpectimaxAgent(2)]
     game = Game(agents) 
     winner = game.run()
     wins[winner] += 1

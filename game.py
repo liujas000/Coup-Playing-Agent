@@ -9,6 +9,7 @@ Use A/B pruning?
 Make states hashable so we can store hashes of traversed states and remember vopt for them
 implement revealed influences and use them to our advantage
 python profiler to speed up algorithm
+do we reveal unintended information to AI agent by limiting playersCanAct?`
 """
 
 
