@@ -21,7 +21,7 @@ class Agent:
   def printAction(self, a, state):
     print "Agent %d takes %s: %s" % (self.index, state.nextActionType, str(a))
 
-class KeyboardAgent(Agent):
+class TruthKeyboardAgent(Agent):
 
   def getAction(self, state):
     actions = state.getLegalActions(self.index)
@@ -36,8 +36,37 @@ class KeyboardAgent(Agent):
       try:
         action = int(raw_input())
         if action <= len(actions):
-          self.printAction(action, state)
+          self.printAction(actions[action-1], state)
           return actions[action-1]
+      except:
+        print 'Invalid number, try again...'
+
+class KeyboardAgent(Agent):
+
+  def getAction(self, state):
+    legalActions = state.getLegalActions(self.index)
+    bluffActions = state.getBluffActions(self.index)
+    if len(legalActions) == 1 and len(bluffActions) == 0:
+      self.printAction(legalActions[0], state)
+      return legalActions[0]
+    print """
+    ===========STATE BEGIN===========
+    ???
+    ===========STATE END============="""
+    while True:
+      print 'Please enter the number of action from the following list: '
+      for i, a in enumerate(legalActions + bluffActions):
+        print '(%d): %s%s' % (i+1, '[Bluff] ' if i >= len(legalActions), str(a))
+      try:
+        action = int(raw_input())
+        if action <= len(legalActions):
+          output = legalActions[action-1]
+          self.printAction(output, state)
+          return output
+        elif action - len(legalActions) < len(bluffActions):
+          output = bluffActions[action - len(legalActions)]
+          self.printAction(output, state)
+          return output
       except:
         print 'Invalid number, try again...'
 
@@ -269,8 +298,9 @@ class LyingExpectimaxAgent(ExpectimaxAgent):
   def getActions(self, player, s):
     return s.getAllActions(player)
 
+# won 87/100 games against 2 LyingRandomAgentNoChallenge agents.
 class OracleExpectimaxAgent(ExpectimaxAgent):
-  
+
   def findProbability(self, state, successorState):
     requiredInfluences = state.requiredInfluencesForState(successorState)
     probability = 1
