@@ -330,7 +330,7 @@ class ExpectimaxAgent(Agent):
       return max([opponentVopt, voptForSelf])
 
   def getAction(self, state):
-    v, a = self.vopt(state.deepCopy(), 5)
+    v, a = self.vopt(state.deepCopy(), 3)
     self.printAction(a, state)
     return a
 
@@ -427,16 +427,17 @@ class TDLearningAgent(LyingExpectimaxAgent):
     constant = self.stepSize * (self.lastV - (reward + (self.discount * self.evaluationFunction(newState))))
     for feature in self.lastFeatureVector:
       currentWeight = self.weights[feature] if feature in self.weights else 0
-      self.weights[feature] = currentWeight - (constant * self.lastFeatureVector[feature])
+      self.weights[feature] = currentWeight + (constant * self.lastFeatureVector[feature])
+      # self.weights[feature] = currentWeight - (constant * self.lastFeatureVector[feature])
 
   def getAction(self, state):
     if state.playerTurn == self.index and state.currentAction == None:
       self.updateW(state, 0)
-      v, a = self.vopt(state.deepCopy(), 5)
+      v, a = self.vopt(state.deepCopy(), 3)
       self.lastV = v
       self.lastFeatureVector = self.featureExtractor(state)
     else:
-      v, a = self.vopt(state.deepCopy(), 5)
+      v, a = self.vopt(state.deepCopy(), 3)
     self.printAction(a, state)
     return a
 
@@ -451,3 +452,8 @@ class TDLearningAgent(LyingExpectimaxAgent):
     outputFile.close()
     historyFile.close()
     print self.weights
+
+class TDLearningAgentExcludeChallenge(TDLearningAgent):
+
+  def getActions(self, player, s):
+    return s.getAllActions(player) if player != self.index else [a for a in s.getLegalActions(player) if not isinstance(a, Challenge)]
