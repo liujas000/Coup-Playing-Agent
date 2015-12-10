@@ -1,7 +1,6 @@
 from game import Game
 from agents import *
-import util 
-import sys, time, random, os # which ones of these do we need?
+import sys
 import collections
 
 def default(str):
