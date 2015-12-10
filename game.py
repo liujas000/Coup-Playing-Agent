@@ -31,7 +31,6 @@ class Game:
     """
     numAgents = len( self.agents )
     print self.state.detailedStr()
-    # raw_input()
     while not self.state.isOver():
       for player in self.state.playersCanAct:
         action = self.agents[player].getAction(self.state)
@@ -46,6 +45,9 @@ class Game:
         break
 
     print "Game over! Player %d wins. Final state: \n" % winningPlayer, self.state
+
+    for agent in self.agents:
+      agent.gameOver(self.state, winningPlayer)
 
     return winningPlayer
 

@@ -1,5 +1,7 @@
 from actions import *
+import util
 import random
+import json
 
 class Agent:
   """
@@ -20,6 +22,9 @@ class Agent:
 
   def printAction(self, a, state):
     print "Agent %d takes %s: %s" % (self.index, state.nextActionType, str(a))
+
+  def gameOver(self, state, winner):
+    pass
 
 class TruthKeyboardAgent(Agent):
 
@@ -56,7 +61,7 @@ class KeyboardAgent(Agent):
     while True:
       print 'Please enter the number of action from the following list: '
       for i, a in enumerate(legalActions + bluffActions):
-        print '(%d): %s%s' % (i+1, '[Bluff] ' if i >= len(legalActions), str(a))
+        print '(%d): %s%s' % (i+1, ('[Bluff] ' if i >= len(legalActions) else ''), str(a))
       try:
         action = int(raw_input())
         if action <= len(legalActions):
@@ -237,7 +242,6 @@ class OracleAgent(Agent):
     self.printAction(a, state)
     return a
 
-# doesn't know anybody's cards when looking at probability
 class ExpectimaxAgent(Agent):
 
   def evaluationFunction(self, state):
@@ -278,55 +282,55 @@ class ExpectimaxAgent(Agent):
           probability = 0 if hasAny else 1
     return probability
 
-  def getAction(self, state):
-    def vopt(s, d ):
-      if s.isOver():
-        if len(state.players[self.index].influences) >0:
-          return 10000, [None]
-        return -10000, [None]
-      if d == 0:
-        return self.evaluationFunction(s), None
-      voptForSelf = ()
-      voptForEachOpponent = []
-      for player in s.playersCanAct:
-        voptForActionProbability = []
-        for action in self.getActions(player, s):
-          newStates = s.generateSuccessorStates(action, player)
-          for successorState in newStates:
-            nextVopt = vopt(successorState, d - 1)
-            probability = self.findProbability(s, successorState)
-            voptForActionProbability.append((nextVopt[0], action, probability))
-        if player == self.index:
-          actionToValueProb = {}
-          for value, action, probability in voptForActionProbability:
-            if action in actionToValueProb:
-              actionToValueProb[action].append((value, probability))
-            else:
-              actionToValueProb[action] = [(value, probability)]
-          actionToValue = {a: sum([v * p for v, p in actionToValueProb[a]]) for a in actionToValueProb}
-          for a in actionToValue:
-            n = sum([p for v, p in actionToValueProb[a]])
-            actionToValue[a] = actionToValue[a] if n != 0 else 0
-          maxAction = max(actionToValue, key=lambda x : actionToValue[x])
-          maxValue = actionToValue[maxAction]
-          voptForSelf = (maxValue, maxAction)
-        else:
-          expectedVopt = 0
-          normalizationConstant = 0
-          for value, action, probability in voptForActionProbability:
-            expectedVopt += value * probability
-            normalizationConstant += probability
-          expectedVopt = expectedVopt/float(normalizationConstant) if normalizationConstant != 0 else 0
-          voptForEachOpponent.append(expectedVopt)
-      opponentVopt = min(voptForEachOpponent) if len(voptForEachOpponent) > 0 else None
-      if opponentVopt is None:
-        return voptForSelf
-      elif len(voptForSelf) == 0:
-        return opponentVopt, None
+  def vopt(self, s, d ):
+    if s.isOver():
+      if len(s.players[self.index].influences) >0:
+        return 10000, [None]
+      return -10000, [None]
+    if d == 0:
+      return self.evaluationFunction(s), None
+    voptForSelf = ()
+    voptForEachOpponent = []
+    for player in s.playersCanAct:
+      voptForActionProbability = []
+      for action in self.getActions(player, s):
+        newStates = s.generateSuccessorStates(action, player)
+        for successorState in newStates:
+          nextVopt = self.vopt(successorState, d - 1)
+          probability = self.findProbability(s, successorState)
+          voptForActionProbability.append((nextVopt[0], action, probability))
+      if player == self.index:
+        actionToValueProb = {}
+        for value, action, probability in voptForActionProbability:
+          if action in actionToValueProb:
+            actionToValueProb[action].append((value, probability))
+          else:
+            actionToValueProb[action] = [(value, probability)]
+        actionToValue = {a: sum([v * p for v, p in actionToValueProb[a]]) for a in actionToValueProb}
+        for a in actionToValue:
+          n = sum([p for v, p in actionToValueProb[a]])
+          actionToValue[a] = actionToValue[a] if n != 0 else 0
+        maxAction = max(actionToValue, key=lambda x : actionToValue[x])
+        maxValue = actionToValue[maxAction]
+        voptForSelf = (maxValue, maxAction)
       else:
-        return max([opponentVopt, voptForSelf])
+        expectedVopt = 0
+        normalizationConstant = 0
+        for value, action, probability in voptForActionProbability:
+          expectedVopt += value * probability
+          normalizationConstant += probability
+        expectedVopt = expectedVopt/float(normalizationConstant) if normalizationConstant != 0 else 0
+        voptForEachOpponent.append(expectedVopt)
+    opponentVopt = min(voptForEachOpponent) if len(voptForEachOpponent) > 0 else None
+    if opponentVopt is None:
+      return voptForSelf
+    elif len(voptForSelf) == 0:
+      return opponentVopt, None
+    else:
+      return max([opponentVopt, voptForSelf])
 
-    v, a = vopt(state.deepCopy(), 5)
+  def getAction(self, state):
+    v, a = self.vopt(state.deepCopy(), 5)
     self.printAction(a, state)
     return a
 
@@ -354,3 +358,96 @@ class OracleExpectimaxAgent(ExpectimaxAgent):
         else:
           probability = 0 if hasAny else 1
     return probability
+
+class QLearningAgent(LyingExpectimaxAgent):
+
+  def updateQ(self, s, a, r, nextS):
+    pass
+
+  def vopt(self, newState, depth):
+    pass
+
+  def qopt(self, newState, newAction):
+    pass
+
+  def updateQopt(self, newState):
+    pass
+
+  def getAction(self, newState, newAction):
+    pass
+
+class TDLearningAgent(LyingExpectimaxAgent):
+
+  def __init__(self, index=0):
+    LyingExpectimaxAgent.__init__(self, index)
+    self.weights = {} # read from FILE
+    self.stepSize = .01
+    self.discount = 1
+    self.lastFeatureVector = {}
+    self.lastV = 0
+    inputFile = open('td-learning-data.dat', 'r')
+    jsonWeights = inputFile.read()
+    if len(jsonWeights) > 0:
+      self.weights = json.loads(jsonWeights)
+    inputFile.close()
+
+  # extract features from state into key-value pairs
+  def featureExtractor(self, state):
+    o = {}
+    o['playersRemaining'] = sum([1 for p in state.players if len(p.influences) > 0])
+    o['selfCoins'] = state.players[self.index].coins
+    o['selfInfluences'] = len(state.players[self.index].influences)
+    o['selfPunished'] = sum([1 for p in state.punishedPlayers if p == self.index])
+    o['opponentsPunished'] = sum([1 for p in state.punishedPlayers if p != self.index]) 
+    o['selfBlocked'] = 1 if state.playerTurn == self.index and state.playerBlock is not None else 0
+    o['selfChallenged'] = 1 if (state.playerTurn == self.index and state.playerBlock is None and state.playerChallenge is not None) \
+      or (state.playerBlock == self.index and state.playerChallenge is not None) else 0
+    o['opponentBlocked'] = 1 if state.playerTurn != self.index and state.playerBlock is not None else 0 
+    o['opponentChallenged'] = 1 if (state.playerTurn != self.index and state.playerBlock is None and state.playerChallenge is not None) \
+      or (state.playerBlock != self.index and state.playerChallenge is not None) else 0
+    for p in range(state.numPlayers):
+      if p != self.index:
+        o['opp%dCoins' % p] = state.players[p].coins
+        o['opp%dInfluences' % p] = len(state.players[p].influences)
+        o['opp%dPunished' % p] = sum([1 for player in state.punishedPlayers if player == p]) 
+    for influence in util.influenceList:
+      o['selfHasInfluence_%s' % influence] = 1 if influence in state.players[self.index].influences else 0
+    return o
+
+  def evaluationFunction(self, state):
+    v = 0
+    features = self.featureExtractor(state)
+    for feature in self.weights:
+      if feature not in features:
+        continue
+      v += self.weights[feature] * features[feature]
+    return v
+
+  def updateW(self, newState, reward):
+    constant = self.stepSize * (self.lastV - (reward + (self.discount * self.evaluationFunction(newState))))
+    for feature in self.lastFeatureVector:
+      currentWeight = self.weights[feature] if feature in self.weights else 0
+      self.weights[feature] = currentWeight - (constant * self.lastFeatureVector[feature])
+
+  def getAction(self, state):
+    if state.playerTurn == self.index and state.currentAction == None:
+      self.updateW(state, 0)
+      v, a = self.vopt(state.deepCopy(), 5)
+      self.lastV = v
+      self.lastFeatureVector = self.featureExtractor(state)
+    else:
+      v, a = self.vopt(state.deepCopy(), 5)
+    self.printAction(a, state)
+    return a
+
+  def gameOver(self, state, winner):
+    reward = 100 if winner == self.index else -100
+    self.updateW(state, reward)
+    outputFile = open('td-learning-data.dat', 'w')
+    historyFile = open('td-learning-data-history.txt', 'a')
+    jsonWeights = json.dumps(self.weights)
+    outputFile.write(jsonWeights)
+    historyFile.write(jsonWeights + '\n')
+    outputFile.close()
+    historyFile.close()
+    print self.weights
