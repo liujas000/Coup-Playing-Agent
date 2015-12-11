@@ -21,7 +21,7 @@ class Agent:
     raiseNotDefined()
 
   def printAction(self, a, state):
-    print "Agent %d takes %s: %s" % (self.index, state.nextActionType, str(a))
+    print "Agent %d takes %s%s: %s" % (self.index, state.nextActionType, (' [BLUFF!!]' if str(a) in [str(act) for act in state.getBluffActions(self.index)] else ''), str(a))
 
   def gameOver(self, state, winner):
     pass
@@ -268,7 +268,6 @@ class ExpectimaxAgent(Agent):
       influenceSum = sum([possibleInfluences[x] for x in influenceList])
       product = ((normalization - influenceSum) / normalization) ** len(state.players[p].influences)
       probability *= 1 - product if hasInfluence else product
-      # new addition: know our own influences
       if p == self.index:
         influenceList, hasInfluence = requiredInfluences[p]
         hasAny = False
@@ -330,6 +329,10 @@ class ExpectimaxAgent(Agent):
       return max([opponentVopt, voptForSelf])
 
   def getAction(self, state):
+    # choose a random action 5% of the time. 
+    e = random.random()
+    if e < 0.05:
+      return random.choice(getActions, self.index, state)
     v, a = self.vopt(state.deepCopy(), 3)
     self.printAction(a, state)
     return a
@@ -338,6 +341,15 @@ class LyingExpectimaxAgent(ExpectimaxAgent):
 
   def getActions(self, player, s):
     return s.getAllActions(player)
+
+class BraveLyingExpectimaxAgent(LyingExpectimaxAgent):
+
+  def findProbability(self, state, successorState):
+    probability = LyingExpectimaxAgent.findProbability(self, state, successorState)
+    if successorState.challengeSuccess and (successorState.playerBlock == self.index or \
+     successorState.playerTurn == self.index and successorState.playerBlock is None):
+      probability = 0
+    return probability
 
 # won 87/100 games against 2 LyingRandomAgentNoChallenge agents.
 class OracleExpectimaxAgent(ExpectimaxAgent):
@@ -359,27 +371,10 @@ class OracleExpectimaxAgent(ExpectimaxAgent):
           probability = 0 if hasAny else 1
     return probability
 
-class QLearningAgent(LyingExpectimaxAgent):
-
-  def updateQ(self, s, a, r, nextS):
-    pass
-
-  def vopt(self, newState, depth):
-    pass
-
-  def qopt(self, newState, newAction):
-    pass
-
-  def updateQopt(self, newState):
-    pass
-
-  def getAction(self, newState, newAction):
-    pass
-
-class TDLearningAgent(LyingExpectimaxAgent):
+class TDLearningAgent(ExpectimaxAgent):
 
   def __init__(self, index=0):
-    LyingExpectimaxAgent.__init__(self, index)
+    ExpectimaxAgent.__init__(self, index)
     self.weights = {} # read from FILE
     self.stepSize = .01
     self.discount = 1
