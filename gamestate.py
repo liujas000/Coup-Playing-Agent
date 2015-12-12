@@ -175,7 +175,7 @@ class GameState:
       if self.currentAction == 'foreign aid' or (self.currentAction in ['steal', 'assassinate'] and playerIndex == self.playerTarget):
         canBlock = False
         for influence in util.influenceList:
-          if influence in util.blockToInfluence[self.currentAction] and influence not in playerState.influences:
+          if influence in util.blockToInfluence[self.currentAction] and influence in playerState.influences:
             canBlock = True
         if canBlock:
           return []

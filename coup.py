@@ -37,7 +37,7 @@ def runGames(numGames=100):
   wins = collections.Counter()
   numGames = 20
   for i in range(numGames):
-    agents = [LyingRandomAgentExcludeChallenge(0), LyingExpectimaxAgent(1), BraveLyingExpectimaxAgent(2)]
+    agents = [RandomAgentExcludeChallenge(0), RandomAgentExcludeChallenge(1), BraveLyingExpectimaxAgent(2)]
     game = Game(agents) 
     winner = game.run()
     wins[winner] += 1

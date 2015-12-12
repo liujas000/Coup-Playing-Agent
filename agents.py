@@ -21,7 +21,8 @@ class Agent:
     raiseNotDefined()
 
   def printAction(self, a, state):
-    print "Agent %d takes %s%s: %s" % (self.index, state.nextActionType, (' [BLUFF!!]' if str(a) in [str(act) for act in state.getBluffActions(self.index)] else ''), str(a))
+    print "Agent %d takes %s%s: %s" % (self.index, state.nextActionType, \
+      (' [--------BLUFF!!-------]' if str(a) in [str(act) for act in state.getBluffActions(self.index)] else ''), str(a))
 
   def gameOver(self, state, winner):
     pass
@@ -203,45 +204,6 @@ class LookaheadAgent(Agent):
     self.printAction(a, state)
     return a
 
-# does this do what we think it does?? ....
-class OracleAgent(Agent):
-
-  def evaluationFunction(self, state):
-    score = 0
-    playerState = state.players[self.index]
-    score += len(playerState.influences) * 100
-    score += playerState.coins
-    for i, p in enumerate(state.players):
-      if i != self.index:
-        score -= 10 * len(p.influences)
-    score += sum([-100 if x == self.index else +10 for x in state.punishedPlayers ])
-    return score
-
-  def getAction(self, state):
-    def vopt(s, d):
-      if s.isOver():
-        if len(state.players[self.index].influences) >0:
-          return 99999999, [None]
-        return -9999999, [None]
-      if d == 0:
-        return self.evaluationFunction(s), None
-      possibleActions = []
-      for player in s.playersCanAct:
-        tempActions = []
-        for action in s.getLegalActions(player):
-          newStates = s.generateSuccessorStates(action, player)
-          for successorState in newStates:
-            tempActions.append((vopt(successorState, d - 1)[0], action))
-        if player == self.index:
-          possibleActions.append(max(tempActions))
-        else:
-          possibleActions.append(min(tempActions))
-      return max(possibleActions)
-
-    v, a = vopt(state.deepCopy(), 5)
-    self.printAction(a, state)
-    return a
-
 class ExpectimaxAgent(Agent):
 
   def evaluationFunction(self, state):
@@ -332,7 +294,7 @@ class ExpectimaxAgent(Agent):
     # choose a random action 5% of the time. 
     e = random.random()
     if e < 0.05:
-      return random.choice(getActions, self.index, state)
+      return random.choice(self.getActions(self.index, state))
     v, a = self.vopt(state.deepCopy(), 3)
     self.printAction(a, state)
     return a
